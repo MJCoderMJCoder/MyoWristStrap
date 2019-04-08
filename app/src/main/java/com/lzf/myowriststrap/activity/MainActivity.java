@@ -125,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
                         //                                startActivity(intent);
                         // Use this instead to connect with a Myo that is very near (ie. almost touching) the device
                         // Finally, scan for Myo devices and connect to the first one found that is very near.
-                        hub.attachToAdjacentMyo();
-                        //                        hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
+                        //                        hub.attachToAdjacentMyo();
+                        hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
                         sampleText.setText("正在尝试连接...");
                         break;
                     case BluetoothAdapter.STATE_OFF:
@@ -415,8 +415,8 @@ public class MainActivity extends AppCompatActivity {
                                     //                                startActivity(intent);
                                     // Use this instead to connect with a Myo that is very near (ie. almost touching) the device
                                     // Finally, scan for Myo devices and connect to the first one found that is very near.
-                                    hub.attachToAdjacentMyo();
-                                    //                                    hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
+                                    //                                    hub.attachToAdjacentMyo();
+                                    hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
                                     sampleText.setText("正在尝试连接...");
                                 } else {
                                     sampleText.setText("正在打开蓝牙");
