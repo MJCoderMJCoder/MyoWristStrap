@@ -198,9 +198,9 @@ public class MainActivity extends AppCompatActivity {
                     armStr = "MYO腕带在右手臂上";
                 }
                 if (xDirection == XDirection.TOWARD_ELBOW) {
-                    sampleText.setText(armStr + "当前朝向胳膊肘部");
+                    sampleText.setText(armStr + "当前朝向胳膊肘部"); //USB端口朝向
                 } else if (xDirection == XDirection.TOWARD_WRIST) {
-                    sampleText.setText(armStr + "当前朝向手腕");
+                    sampleText.setText(armStr + "当前朝向手腕"); //USB端口朝向
                 } else {
                     sampleText.setText(armStr);
                 }
@@ -245,13 +245,13 @@ public class MainActivity extends AppCompatActivity {
                         sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //紧握；握成拳头
                         break;
                     case WAVE_IN:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //挥手、摆动、招手
+                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
                         break;
                     case WAVE_OUT:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //挥手、摆动、招手
+                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
                         break;
                     case FINGERS_SPREAD:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //手指伸展开
+                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //手指伸展开（手掌展开）
                         break;
                 }
                 queue.add(myo + "-" + yMdHmsS.format(timestamp) + "-" + pose + ";当MYO提供了新姿势时调用" + myo.getMacAddress() + "-" + myo.getName());
