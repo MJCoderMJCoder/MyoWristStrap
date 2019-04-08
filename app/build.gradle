@@ -44,7 +44,7 @@ dependencies {
             url '../myorepository'
         }
     }
-    compile('com.thalmic:myosdk:0.10.+@aar')
+    implementation('com.thalmic:myosdk:0.10.+@aar')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
