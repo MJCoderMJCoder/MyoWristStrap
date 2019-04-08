@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     arm = "右手臂上";
                 }
-                sampleText.setText(arm + "的MYO腕带已断开链接");
+                sampleText.setText(arm + "的MYO腕带已断开连接");
                 queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";连接的MYO断开连接时调用");
                 sampleText.setTextColor(Color.BLACK);
             } catch (Exception e) {
