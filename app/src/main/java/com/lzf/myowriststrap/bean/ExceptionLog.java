@@ -63,7 +63,7 @@ public class ExceptionLog implements Serializable {
      * 如果不存在，greenDAO将以SQL-ish方式使用字段名称（大写，下划线而不是camel情况，例如customName将成为CUSTOM_NAME）。 注意：您当前只能使用内联常量来指定列名。
      */
     @Property(nameInDb = "EXCEPTION_LOG_ID")
-    private long exceptionLogId;
+    private Long exceptionLogId;
 
     /**
      * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
@@ -100,10 +100,17 @@ public class ExceptionLog implements Serializable {
     @Transient
     private static final long serialVersionUID = -7179470509223932505L;
 
-    @Generated(hash = 950353429)
-    public ExceptionLog(long exceptionLogId, @NotNull String exceptionLogClass, @NotNull String exceptionLogMethod, @NotNull String exceptionLogMessage,
+    @Generated(hash = 1699243956)
+    public ExceptionLog(Long exceptionLogId, @NotNull String exceptionLogClass, @NotNull String exceptionLogMethod, @NotNull String exceptionLogMessage,
                         @NotNull String exceptionLogDateTime) {
         this.exceptionLogId = exceptionLogId;
+        this.exceptionLogClass = exceptionLogClass;
+        this.exceptionLogMethod = exceptionLogMethod;
+        this.exceptionLogMessage = exceptionLogMessage;
+        this.exceptionLogDateTime = exceptionLogDateTime;
+    }
+
+    public ExceptionLog(String exceptionLogClass, String exceptionLogMethod, String exceptionLogMessage, String exceptionLogDateTime) {
         this.exceptionLogClass = exceptionLogClass;
         this.exceptionLogMethod = exceptionLogMethod;
         this.exceptionLogMessage = exceptionLogMessage;
@@ -114,11 +121,11 @@ public class ExceptionLog implements Serializable {
     public ExceptionLog() {
     }
 
-    public long getExceptionLogId() {
+    public Long getExceptionLogId() {
         return this.exceptionLogId;
     }
 
-    public void setExceptionLogId(long exceptionLogId) {
+    public void setExceptionLogId(Long exceptionLogId) {
         this.exceptionLogId = exceptionLogId;
     }
 

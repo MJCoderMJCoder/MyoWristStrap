@@ -64,7 +64,7 @@ public class DataLog implements Serializable {
      * 如果不存在，greenDAO将以SQL-ish方式使用字段名称（大写，下划线而不是camel情况，例如customName将成为CUSTOM_NAME）。 注意：您当前只能使用内联常量来指定列名。
      */
     @Property(nameInDb = "DATA_LOG_ID")
-    private long dataLogId;
+    private Long dataLogId;
 
     /**
      * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
@@ -128,11 +128,22 @@ public class DataLog implements Serializable {
     @Transient
     private static final long serialVersionUID = 7187212593875334889L;
 
-    @Generated(hash = 1509124289)
-    public DataLog(long dataLogId, @NotNull String dataLogDateTime, @NotNull String dataLogContent, @NotNull String dataLogArm,
+    @Generated(hash = 971965016)
+    public DataLog(Long dataLogId, @NotNull String dataLogDateTime, @NotNull String dataLogContent, @NotNull String dataLogArm,
                    @NotNull String dataLogXDirection, @NotNull String dataLogPose, @NotNull String dataLogOrientation, @NotNull String dataLogAccelerometer,
                    @NotNull String dataLogGyroscope) {
         this.dataLogId = dataLogId;
+        this.dataLogDateTime = dataLogDateTime;
+        this.dataLogContent = dataLogContent;
+        this.dataLogArm = dataLogArm;
+        this.dataLogXDirection = dataLogXDirection;
+        this.dataLogPose = dataLogPose;
+        this.dataLogOrientation = dataLogOrientation;
+        this.dataLogAccelerometer = dataLogAccelerometer;
+        this.dataLogGyroscope = dataLogGyroscope;
+    }
+
+    public DataLog(String dataLogDateTime, String dataLogContent, String dataLogArm, String dataLogXDirection, String dataLogPose, String dataLogOrientation, String dataLogAccelerometer, String dataLogGyroscope) {
         this.dataLogDateTime = dataLogDateTime;
         this.dataLogContent = dataLogContent;
         this.dataLogArm = dataLogArm;
@@ -147,11 +158,11 @@ public class DataLog implements Serializable {
     public DataLog() {
     }
 
-    public long getDataLogId() {
+    public Long getDataLogId() {
         return this.dataLogId;
     }
 
-    public void setDataLogId(long dataLogId) {
+    public void setDataLogId(Long dataLogId) {
         this.dataLogId = dataLogId;
     }
 

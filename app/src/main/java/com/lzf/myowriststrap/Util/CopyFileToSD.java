@@ -77,7 +77,7 @@ public class CopyFileToSD {
             fis = new FileInputStream(databaseFile);
             fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + databaseName + ".db");
             int len = 0;
-            byte[] buffer = new byte[2048];
+            byte[] buffer = new byte[20480];
             while (-1 != (len = fis.read(buffer))) {
                 fos.write(buffer, 0, len);
             }
@@ -115,7 +115,7 @@ public class CopyFileToSD {
             fis = new FileInputStream(sharedPrefsFile);
             fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + sharedPrefsName + ".xml");
             int len = 0;
-            byte[] buffer = new byte[2048];
+            byte[] buffer = new byte[20480];
             while (-1 != (len = fis.read(buffer))) {
                 fos.write(buffer, 0, len);
             }
