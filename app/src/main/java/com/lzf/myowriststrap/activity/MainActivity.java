@@ -21,9 +21,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lzf.myowriststrap.LzfApplication;
 import com.lzf.myowriststrap.R;
 import com.lzf.myowriststrap.Util.CopyFileToSD;
 import com.lzf.myowriststrap.Util.SharedPreferencesUtil;
+import com.lzf.myowriststrap.bean.DataLog;
+import com.lzf.myowriststrap.bean.ExceptionLog;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -36,8 +39,6 @@ import com.thalmic.myo.XDirection;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.lzf.myowriststrap.LzfApplication.REQUEST_PERMISSION_CODE;
@@ -81,35 +82,35 @@ public class MainActivity extends AppCompatActivity {
     //MYO的核心
     private Hub hub;
     //线程控制
-    private boolean threadControl = false;
+    //    private boolean threadControl = false;
     //数据 //FIFO队列
-    private List<String> queue = Collections.synchronizedList(new LinkedList<String>());
+    //    private List<String> queue = Collections.synchronizedList(new LinkedList<String>());
     /**
      * 数据录取线程
      */
-    private Thread thread = new Thread() {
-        @Override
-        public void run() {
-            super.run();
-            while (threadControl) {
-                if (queue != null && queue.size() > 0) {
-                    try {
-                        String str[] = queue.remove(0).split(";");
-                        SharedPreferencesUtil.put(MainActivity.this, str[0], str[1]);
-                    } catch (Exception e) {
-                        SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    };
+    //    private Thread thread = new Thread() {
+    //        @Override
+    //        public void run() {
+    //            super.run();
+    //            while (threadControl) {
+    //                if (queue != null && queue.size() > 0) {
+    //                    try {
+    //                        String str[] = queue.remove(0).split(";");
+    //                        SharedPreferencesUtil.put(MainActivity.this, str[0], str[1]);
+    //                    } catch (Exception e) {
+    //                        SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
+    //                        e.printStackTrace();
+    //                    }
+    //                } else {
+    //                    try {
+    //                        Thread.sleep(500);
+    //                    } catch (InterruptedException e) {
+    //                        e.printStackTrace();
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    };
     /**
      * 手机蓝牙广播接收器。
      */
@@ -117,31 +118,35 @@ public class MainActivity extends AppCompatActivity {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                switch (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0)) {
-                    case BluetoothAdapter.STATE_ON:
-                        //                                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-                        //                                startActivity(intent);
-                        // Use this instead to connect with a Myo that is very near (ie. almost touching) the device
-                        // Finally, scan for Myo devices and connect to the first one found that is very near.
-                        //                        hub.attachToAdjacentMyo();
-                        hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
-                        sampleText.setText("正在尝试连接...");
-                        break;
-                    case BluetoothAdapter.STATE_OFF:
-                        sampleText.setTextColor(Color.GRAY);
-                        sampleText.setText("正在打开蓝牙");
-                        if (bluetoothAdapter != null) {
-                            bluetoothAdapter.enable();
-                        } else {
-                            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                            bluetoothAdapter.enable();
-                        }
-                        break;
-                    default:
-                        break;
+            try {
+                String action = intent.getAction();
+                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                    switch (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0)) {
+                        case BluetoothAdapter.STATE_ON:
+                            //                                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                            //                                startActivity(intent);
+                            // Use this instead to connect with a Myo that is very near (ie. almost touching) the device
+                            // Finally, scan for Myo devices and connect to the first one found that is very near.
+                            //                        hub.attachToAdjacentMyo();
+                            hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
+                            sampleText.setText("正在尝试连接...");
+                            break;
+                        case BluetoothAdapter.STATE_OFF:
+                            sampleText.setTextColor(Color.GRAY);
+                            sampleText.setText("正在打开蓝牙");
+                            if (bluetoothAdapter != null) {
+                                bluetoothAdapter.enable();
+                            } else {
+                                bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                                bluetoothAdapter.enable();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
+            } catch (Exception e) {
+                exceptionLog("broadcastReceiver-onReceive", e.getMessage());
             }
         }
     };
@@ -161,10 +166,10 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上的";
                 }
                 sampleText.setText("正在连接" + arm + "MYO腕带...");
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";连接MYO时调用");
+                dataLog("正在连接" + arm + "MYO腕带...", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";连接MYO时调用-" + "正在连接" + arm + "MYO腕带...");
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onAttach", e.getMessage());
             }
         }
 
@@ -181,10 +186,10 @@ public class MainActivity extends AppCompatActivity {
                 //                Intent intent = new Intent(MainActivity.this, MainActivity.class);
                 //                startActivity(intent);
                 sampleText.setText(arm + "的MYO腕带已连接");
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";MYO已连接");
+                dataLog(arm + "的MYO腕带已连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";MYO已连接-" + arm + "的MYO腕带已连接");
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onConnect", e.getMessage());
             }
         }
 
@@ -198,100 +203,99 @@ public class MainActivity extends AppCompatActivity {
                     armStr = "MYO腕带在右手臂上";
                 }
                 if (xDirection == XDirection.TOWARD_ELBOW) {
-                    sampleText.setText(armStr + "当前朝向胳膊肘部"); //USB端口朝向
+                    armStr += "-当前朝向胳膊肘部"; //USB端口朝向
                 } else if (xDirection == XDirection.TOWARD_WRIST) {
-                    sampleText.setText(armStr + "当前朝向手腕"); //USB端口朝向
-                } else {
-                    sampleText.setText(armStr);
+                    armStr += "-当前朝向手腕"; //USB端口朝向
                 }
-                queue.add(yMdHmsS.format(timestamp) + "-" + armStr + "-" + xDirection + ";当MYO识别出它在手臂上时调用");
+                sampleText.setText(armStr);
+                dataLog(armStr, arm + "", xDirection + "", myo.getPose() + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + "-" + arm + "-" + xDirection + ";当MYO识别出它在手臂上时调用-" + armStr);
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onArmSync", e.getMessage());
             }
         }
 
         @Override
         public void onUnlock(Myo myo, long timestamp) {
-            try {
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";当同步的MYO解锁时调用");
-            } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
-            }
+            //            try {
+            //               queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";当同步的MYO解锁时调用");
+            //            } catch (Exception e) {
+            //               exceptionLog("deviceListener-onUnlock", e.getMessage());
+            //            }
         }
 
         @Override
         public void onPose(Myo myo, long timestamp, Pose pose) {
             try {
-                String arm = "MYO腕带不在手臂上";
+                String armStr = "MYO腕带不在手臂上";
                 if (myo.getArm() == Arm.LEFT) {
-                    arm = "MYO腕带在左手臂上";
+                    armStr = "MYO腕带在左手臂上";
                 } else if (myo.getArm() == Arm.RIGHT) {
-                    arm = "MYO腕带在右手臂上";
+                    armStr = "MYO腕带在右手臂上";
                 }
                 // Handle the cases of the Pose enumeration, and change the text of the text view based on the pose we receive.
                 switch (pose) {
                     case UNKNOWN:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //未知
+                        armStr += " - 暂时无法识别；敬请期待。"; //未知
                         break;
                     case REST:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //休息、轻松
+                        armStr += " - 暂时无法识别；敬请期待。"; //休息、轻松（relax your armStr）
                         break;
                     case DOUBLE_TAP:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //双发快射、双击。tap：轻敲；轻打；轻拍；轻击；轻叩
+                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
                         break;
                     case FIST:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //紧握；握成拳头
+                        armStr += " - 暂时无法识别；敬请期待。"; //紧握；握成拳头；握拳；（把手指）捏成拳头
                         break;
                     case WAVE_IN:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
                         break;
                     case WAVE_OUT:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
+                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
                         break;
                     case FINGERS_SPREAD:
-                        sampleText.setText(arm + " - 暂时无法识别；敬请期待。"); //手指伸展开（手掌展开）
+                        armStr += " - 暂时无法识别；敬请期待。"; //（五个都）手指伸展开（手掌展开）
                         break;
                 }
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + "-" + pose + ";当MYO提供了新姿势时调用" + myo.getMacAddress() + "-" + myo.getName());
+                //                sampleText.setText(armStr);
+                dataLog(armStr, myo.getArm() + "", myo.getXDirection() + "", pose + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + "-" + pose + ";当MYO提供了新姿势时调用" + myo.getMacAddress() + "-" + myo.getName());
                 //TODO: Do something awesome.
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onPose", e.getMessage());
             }
         }
 
         @Override
         public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
             try {
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + "-" + rotation + ";当MYO提供新的方向数据时调用");
+                dataLog("当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + "-" + rotation + ";当MYO提供新的方向数据时调用");
                 //TODO: Do something awesome.
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onOrientationData", e.getMessage());
             }
         }
 
         @Override
         public void onAccelerometerData(Myo myo, long timestamp, Vector3 accel) {
             try {
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + "-" + accel + ";当MYO提供新的加速度计数据时调用");
+                dataLog("当MYO提供新的加速度计数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", accel + "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + "-" + accel + ";当MYO提供新的加速度计数据时调用");
                 //TODO: Do something awesome.
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onAccelerometerData", e.getMessage());
             }
         }
 
         @Override
         public void onGyroscopeData(Myo myo, long timestamp, Vector3 gyro) {
             try {
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + "-" + gyro + ";当MYO提供新的陀螺仪数据时调用");
+                dataLog("当MYO提供新的陀螺仪数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", gyro + "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + "-" + gyro + ";当MYO提供新的陀螺仪数据时调用");
                 //TODO: Do something awesome.
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onGyroscopeData", e.getMessage());
             }
         }
 
@@ -303,22 +307,20 @@ public class MainActivity extends AppCompatActivity {
          */
         @Override
         public void onRssi(Myo myo, long timestamp, int rssi) {
-            try {
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + "-" + rssi + ";当requestRssi()触发读取MYO的RSSI值时调用");
-            } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
-            }
+            //            try {
+            //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + "-" + rssi + ";当requestRssi()触发读取MYO的RSSI值时调用");
+            //            } catch (Exception e) {
+            //                exceptionLog("deviceListener-onRssi", e.getMessage());
+            //            }
         }
 
         @Override
         public void onLock(Myo myo, long timestamp) {
-            try {
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";当同步的Myo被锁定时调用");
-            } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
-            }
+            //            try {
+            //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";当同步的Myo被锁定时调用");
+            //            } catch (Exception e) {
+            //                exceptionLog("deviceListener-onLock", e.getMessage());
+            //            }
         }
 
         @Override
@@ -331,10 +333,10 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上";
                 }
                 sampleText.setText("MYO腕带正从" + arm + "移开");
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";将Myo从手臂移开或移除时调用");
+                dataLog("MYO腕带正从" + arm + "移开", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";将Myo从手臂移开或移除时调用-" + "MYO腕带正从" + arm + "移开");
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onArmUnsync", e.getMessage());
             }
         }
 
@@ -348,11 +350,11 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上";
                 }
                 sampleText.setText(arm + "的MYO腕带已断开连接");
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";连接的MYO断开连接时调用");
+                dataLog(arm + "的MYO腕带已断开连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";连接的MYO断开连接时调用-" + arm + "的MYO腕带已断开连接");
                 sampleText.setTextColor(Color.BLACK);
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onDisconnect", e.getMessage());
             }
         }
 
@@ -366,11 +368,11 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上";
                 }
                 sampleText.setText(arm + "的MYO腕带信号太弱");
-                queue.add(myo + "-" + yMdHmsS.format(timestamp) + ";当MYO分离时调用");
+                dataLog(arm + "的MYO腕带信号太弱", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "");
+                //                queue.add(yMdHmsS.format(System.currentTimeMillis()) + ";当MYO分离时调用-" + arm + "的MYO腕带信号太弱");
                 sampleText.setTextColor(Color.BLACK);
             } catch (Exception e) {
-                SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-                e.printStackTrace();
+                exceptionLog("deviceListener-onDetach", e.getMessage());
             }
         }
     };
@@ -390,10 +392,10 @@ public class MainActivity extends AppCompatActivity {
                 //LockingPolicy.STANDARD Using this policy means Myo will be locked until the user performs the unlock pose. This is the default policy.
                 //LockingPolicy.NONE Using this policy means you will always receive pose events, regardless of Myo's unlock state.
                 hub.setLockingPolicy(Hub.LockingPolicy.NONE);
-                if (thread != null) {
-                    threadControl = true;
-                    thread.start();
-                }
+                //                if (thread != null) {
+                //                    threadControl = true;
+                //                    thread.start();
+                //                }
                 registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                 hub.addListener(deviceListener);
                 // Set the maximum number of simultaneously attached Myos to 2.
@@ -431,22 +433,24 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         } catch (Exception e) {
-            SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-            e.printStackTrace();
+            exceptionLog("onCreate", e.getMessage());
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sampleText.setTextColor(Color.BLACK);
+        try {
+            sampleText.setTextColor(Color.BLACK);
+        } catch (Exception e) {
+            exceptionLog("onCreate", e.getMessage());
+        }
     }
 
     /**
      * 判断哪些权限未授予以便在必要的时候重新申请
      * 判断存储未授予权限的集合permissionList是否为空：未授予的权限为空，表示都授予了
      */
-
     private void permissionIsGranted() {
         try {
             permissionList.clear();
@@ -469,15 +473,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         } catch (Exception e) {
-            SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-            e.printStackTrace();
+            exceptionLog("permissionIsGranted", e.getMessage());
         }
     }
 
     @Override
     public void onBackPressed() {
         try {
-            threadControl = false;
+            //            threadControl = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // 置入一个不设防的VmPolicy：Android 7.0 FileUriExposedException
                 StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                 StrictMode.setVmPolicy(builder.build());
@@ -512,13 +515,14 @@ public class MainActivity extends AppCompatActivity {
                     canvas.drawBitmap(bitmap, 0, title_layout.getHeight(), paint); // 绘制图片
                     canvas.translate(0, 0);
                     title_layout.draw(canvas);*/
-            CopyFileToSD.sharedPrefsFile(getPackageName(), SharedPreferencesUtil.FILE_NAME);
-            File sharedPrefsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + SharedPreferencesUtil.FILE_NAME + ".xml");
+            //            CopyFileToSD.sharedPrefsFile(getPackageName(), SharedPreferencesUtil.FILE_NAME);
+            CopyFileToSD.databaseFile(getPackageName(), "MYO_WRIST_STRAP");
+            File shareDatabaseFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MYO_WRIST_STRAP.db");
             Intent intent = new Intent(Intent.ACTION_SEND);
             //                        intent.setType("text/plain"); //分享文字
             //            intent.setType("image/*");
             intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(sharedPrefsFile)); //分享单张图片
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareDatabaseFile)); //分享单张图片
             //                ArrayList<Uri> uriList = new ArrayList<>();
             //                String path = Environment.getExternalStorageDirectory() + File.separator;
             //                uriList.add(Uri.fromFile(new File(path + "australia_1.jpg")));
@@ -532,8 +536,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(Intent.createChooser(intent, "发送给纸纷飞（598157378）")); //getTitle()设置分享列表的标题
             finish();
         } catch (Exception e) {
-            SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-            e.printStackTrace();
+            exceptionLog("onBackPressed", e.getMessage());
         }
         //        }
     }
@@ -542,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            threadControl = false;
+            //            threadControl = false;
             if (hub != null) {
                 hub.removeListener(deviceListener);
                 hub.shutdown();
@@ -553,8 +556,40 @@ public class MainActivity extends AppCompatActivity {
             unregisterReceiver(broadcastReceiver);
             System.exit(0);
         } catch (Exception e) {
-            SharedPreferencesUtil.put(MainActivity.this, e.getMessage(), e.getLocalizedMessage());
-            e.printStackTrace();
+            exceptionLog("onDestroy", e.getMessage());
+        }
+    }
+
+    /**
+     * 将异常打印到数据库中
+     *
+     * @param methodName
+     * @param message
+     */
+    private void exceptionLog(String methodName, String message) {
+        try {
+            LzfApplication.getDaoSession(this).getExceptionLogDao().insertWithoutSettingPk(new ExceptionLog(0L, "com.lzf.myowriststrap.activity.MainActivity", methodName, message, yMdHmsS.format(System.currentTimeMillis())));
+        } catch (Exception e) {
+            LzfApplication.getDaoSession(this).getExceptionLogDao().insertWithoutSettingPk(new ExceptionLog(0L, "com.lzf.myowriststrap.activity.MainActivity", "exceptionLog", e.getMessage(), yMdHmsS.format(System.currentTimeMillis())));
+        }
+    }
+
+    /**
+     * 将MYO返回的数据打印到数据库中
+     *
+     * @param dataLogContent
+     * @param dataLogArm
+     * @param dataLogXDirection
+     * @param dataLogPose
+     * @param dataLogOrientation
+     * @param dataLogAccelerometer
+     * @param dataLogGyroscope
+     */
+    private void dataLog(String dataLogContent, String dataLogArm, String dataLogXDirection, String dataLogPose, String dataLogOrientation, String dataLogAccelerometer, String dataLogGyroscope) {
+        try {
+            LzfApplication.getDaoSession(this).getDataLogDao().insertWithoutSettingPk(new DataLog(0L, yMdHmsS.format(System.currentTimeMillis()), dataLogContent, dataLogArm, dataLogXDirection, dataLogPose, dataLogOrientation, dataLogAccelerometer, dataLogGyroscope));
+        } catch (Exception e) {
+            exceptionLog("dataLog", e.getMessage());
         }
     }
 }
