@@ -229,4 +229,19 @@ public class DataLog implements Serializable {
     public void setDataLogGyroscope(String dataLogGyroscope) {
         this.dataLogGyroscope = dataLogGyroscope;
     }
+
+    @Override
+    public String toString() {
+        return "DataLog{" +
+                "dataLogId=" + dataLogId +
+                ", dataLogDateTime='" + dataLogDateTime + '\'' +
+                ", dataLogContent='" + dataLogContent + '\'' +
+                ", dataLogArm='" + dataLogArm + '\'' +
+                ", dataLogXDirection='" + dataLogXDirection + '\'' +
+                ", dataLogPose='" + dataLogPose + '\'' +
+                ", dataLogOrientation='" + dataLogOrientation + '\'' +
+                ", dataLogAccelerometer='" + dataLogAccelerometer + '\'' +
+                ", dataLogGyroscope='" + dataLogGyroscope + '\'' +
+                '}';
+    }
 }

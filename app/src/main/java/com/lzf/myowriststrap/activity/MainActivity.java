@@ -27,6 +27,7 @@ import com.lzf.myowriststrap.R;
 import com.lzf.myowriststrap.Util.CopyFileToSD;
 import com.lzf.myowriststrap.bean.DataLog;
 import com.lzf.myowriststrap.bean.ExceptionLog;
+import com.lzf.myowriststrap.jni.MTCNN;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -48,17 +49,26 @@ import static com.lzf.myowriststrap.LzfApplication.yMdHmsS;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
-
     /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
+     * 声明一个集合，在后面的代码中用来存储用户拒绝授权的一系列权限
      */
-    public native String stringFromJNI();
-
+    private List<String> permissionList = new ArrayList<String>();
+    //蓝牙设备适配器
+    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    //测试MYO腕带文本按钮
+    private TextView sampleText;
+    //显示MYO腕带相应动作
+    private ImageView imageView;
+    //MYO的核心
+    private Hub hub;
+    //数据录入线程控制
+    private boolean dataEntryThreadControl = false;
+    //数据 //FIFO队列
+    private List<DataLog> dataLogList = Collections.synchronizedList(new LinkedList<DataLog>());
+    //上一个手势
+    private String lastPose = "";
+    //上一个手势的最新事件
+    private long lastPoseTime = 0L;
     /**
      * 所请求的一系列权限
      */
@@ -74,29 +84,13 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_FINE_LOCATION
     };
     /**
-     * 声明一个集合，在后面的代码中用来存储用户拒绝授权的一系列权限
+     * 数据录入线程
      */
-    private List<String> permissionList = new ArrayList<String>();
-    //蓝牙设备适配器
-    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    //测试MYO腕带文本按钮
-    private TextView sampleText;
-    //显示MYO腕带相应动作
-    private ImageView imageView;
-    //MYO的核心
-    private Hub hub;
-    //线程控制
-    private boolean threadControl = false;
-    //数据 //FIFO队列
-    private List<DataLog> dataLogList = Collections.synchronizedList(new LinkedList<DataLog>());
-    /**
-     * 数据录取线程
-     */
-    private Thread thread = new Thread() {
+    private Thread dataEntryThread = new Thread() {
         @Override
         public void run() {
             super.run();
-            while (threadControl) {
+            while (dataEntryThreadControl) {
                 try {
                     if (dataLogList != null && dataLogList.size() > 0) {
                         DataLog dataLog = dataLogList.remove(0);
@@ -163,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     armStr = "右手臂上的";
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "正在连接" + armStr + "MYO腕带...", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", ""));
+                imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText("正在连接" + armStr + "MYO腕带...");
             } catch (Exception e) {
                 exceptionLog("deviceListener-onAttach", e.getMessage());
@@ -182,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 //                Intent intent = new Intent(MainActivity.this, MainActivity.class);
                 //                startActivity(intent);
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr + "的MYO腕带已连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", ""));
+                imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(armStr + "的MYO腕带已连接");
             } catch (Exception e) {
                 exceptionLog("deviceListener-onConnect", e.getMessage());
@@ -198,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     armStr = "MYO腕带在右手臂上";
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, arm + "", xDirection + "", myo.getPose() + "", "", "", ""));
+                imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(armStr);
             } catch (Exception e) {
                 exceptionLog("deviceListener-onArmSync", e.getMessage());
@@ -207,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onPose(Myo myo, long timestamp, Pose pose) {
             try {
+                imageView.setVisibility(View.VISIBLE);
                 String armStr = "MYO腕带不在手臂上";
                 if (myo.getArm() == Arm.LEFT) {
                     armStr = "MYO腕带在左手臂上";
@@ -216,24 +214,24 @@ public class MainActivity extends AppCompatActivity {
                 // Handle the cases of the Pose enumeration, and change the text of the text view based on the pose we receive.
                 switch (pose) {
                     case UNKNOWN:
-                        //                        armStr += " - 暂时无法识别；敬请期待。"; //未知
+                        armStr += " - 暂时无法识别；敬请期待。"; //未知
                         break;
                     case REST:
                         imageView.setImageResource(R.drawable.care_rest);
                         armStr += " - 呵护"; //休息、轻松（relax your armStr）
                         break;
                     case DOUBLE_TAP:
-                        //                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
+                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
                         break;
                     case FIST:
                         imageView.setImageResource(R.drawable.make_fist);
                         armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
                         break;
                     case WAVE_IN:
-                        //                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
                         break;
                     case WAVE_OUT:
-                        //                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
+                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
                         break;
                     case FINGERS_SPREAD:
                         imageView.setImageResource(R.drawable.spread_fingers);
@@ -241,8 +239,14 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, myo.getArm() + "", myo.getXDirection() + "", pose + "", "", "", ""));
-                //                sampleText.setText(armStr);
+                sampleText.setText(armStr);
                 //TODO: Do something awesome.
+                if (!lastPose.equals(pose + "")) {
+                    lastPose = pose + "";
+                    lastPoseTime = System.currentTimeMillis();
+                } else {
+                    lastPoseTime = System.currentTimeMillis();
+                }
             } catch (Exception e) {
                 exceptionLog("deviceListener-onPose", e.getMessage());
             }
@@ -251,6 +255,23 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
             try {
+                String armStr = "MYO腕带不在手臂上";
+                if (myo.getArm() == Arm.LEFT) {
+                    armStr = "MYO腕带在左手臂上";
+                } else if (myo.getArm() == Arm.RIGHT) {
+                    armStr = "MYO腕带在右手臂上";
+                }
+                if (myo.getPose() == Pose.FIST) {
+                    if (Math.abs(rotation.x()) > 0.1 && Math.abs(rotation.x()) < 0.19) {
+                        imageView.setImageResource(R.drawable.give_like);
+                        armStr += " - 点赞"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                        sampleText.setText(armStr);
+                    } else if (Math.abs(rotation.x()) < 0.1) {
+                        imageView.setImageResource(R.drawable.make_fist);
+                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                        sampleText.setText(armStr);
+                    }
+                }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", "", ""));
                 //TODO: Do something awesome.
             } catch (Exception e) {
@@ -288,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上";
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "MYO腕带正从" + arm + "移开", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", ""));
+                imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText("MYO腕带正从" + arm + "移开");
             } catch (Exception e) {
                 exceptionLog("deviceListener-onArmUnsync", e.getMessage());
@@ -304,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上";
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), arm + "的MYO腕带已断开连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", ""));
+                imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(arm + "的MYO腕带已断开连接");
                 sampleText.setTextColor(Color.BLACK);
             } catch (Exception e) {
@@ -321,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
                     arm = "右手臂上";
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), arm + "的MYO腕带信号太弱", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", ""));
+                imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(arm + "的MYO腕带信号太弱");
                 sampleText.setTextColor(Color.BLACK);
             } catch (Exception e) {
@@ -344,9 +368,9 @@ public class MainActivity extends AppCompatActivity {
                 //LockingPolicy.STANDARD Using this policy means Myo will be locked until the user performs the unlock pose. This is the default policy.
                 //LockingPolicy.NONE Using this policy means you will always receive pose events, regardless of Myo's unlock state.
                 hub.setLockingPolicy(Hub.LockingPolicy.NONE);
-                if (thread != null) {
-                    threadControl = true;
-                    thread.start();
+                if (dataEntryThread != null) {
+                    dataEntryThreadControl = true;
+                    dataEntryThread.start();
                 }
                 registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                 hub.addListener(deviceListener);
@@ -355,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
                 // Example of a call to a native method
                 sampleText = findViewById(R.id.sample_text);
                 imageView = findViewById(R.id.image_view);
-                sampleText.setText(stringFromJNI());
+                sampleText.setText(new MTCNN().stringFromJNI());
                 sampleText.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -432,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         try {
-            threadControl = false;
+            dataEntryThreadControl = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // 置入一个不设防的VmPolicy：Android 7.0 FileUriExposedException
                 StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                 StrictMode.setVmPolicy(builder.build());
@@ -497,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            threadControl = false;
+            dataEntryThreadControl = false;
             if (hub != null) {
                 hub.removeListener(deviceListener);
                 hub.shutdown();

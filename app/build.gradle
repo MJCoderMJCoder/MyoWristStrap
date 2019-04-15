@@ -10,24 +10,35 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a' //,'x86', 'x86_64', 'armeabi'
+            stl "gnustl_static"
+        }
         externalNativeBuild {
             cmake {
-                cppFlags "-frtti -fexceptions"
+//                cppFlags "-frtti -fexceptions"
+                arguments "-DANDROID_TOOLCHAIN=clang"
+                cFlags "-fopenmp -O2 -fvisibility=hidden -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -ffast-math "
+                cppFlags "-fopenmp -O2 -fvisibility=hidden -fvisibility-inlines-hidden -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -ffast-math "
+                cppFlags ""
+                cppFlags "-std=c++11"
+                cppFlags "-frtti"
+                cppFlags "-fexceptions"
             }
         }
     }
     buildTypes {
         debug {
-            minifyEnabled true //是否启动混淆 ture:打开   false:关闭
-            zipAlignEnabled true   //ZipAlign优化
-            shrinkResources true  // 资源压缩：移除无用的resource文件
+            minifyEnabled false //是否启动混淆 ture:打开   false:关闭
+            zipAlignEnabled false   //ZipAlign优化
+            shrinkResources false  // 资源压缩：移除无用的resource文件
             //前一部分代表系统默认的android程序的混淆文件，该文件已经包含了基本的混淆声明，后一个文件是自己的定义混淆文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled true //是否启动混淆 ture:打开   false:关闭
-            zipAlignEnabled true   //ZipAlign优化
-            shrinkResources true  // 资源压缩：移除无用的resource文件
+            minifyEnabled false //是否启动混淆 ture:打开   false:关闭
+            zipAlignEnabled false   //ZipAlign优化
+            shrinkResources false  // 资源压缩：移除无用的resource文件
             //前一部分代表系统默认的android程序的混淆文件，该文件已经包含了基本的混淆声明，后一个文件是自己的定义混淆文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -37,9 +48,14 @@ android {
             path "CMakeLists.txt"
         }
     }
+    //set no compress models
+    aaptOptions {
+        noCompress "tflite"
+    }
 }
 
 dependencies {
+
     repositories {
         maven {
             url '../myorepository'
@@ -47,6 +63,8 @@ dependencies {
     }
     implementation('com.thalmic:myosdk:0.10.+@aar')
     implementation 'org.greenrobot:greendao:3.2.2'
+    implementation 'org.tensorflow:tensorflow-android:1.13.1'
+    implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'

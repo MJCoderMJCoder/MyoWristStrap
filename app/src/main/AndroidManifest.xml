@@ -35,11 +35,8 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".service.MyoService"
-            android:enabled="true"
-            android:exported="true">
-        </service>
+        <activity android:name=".activity.MtnnActivity">
+        </activity>
     </application>
 
 </manifest>

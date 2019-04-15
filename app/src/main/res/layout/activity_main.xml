@@ -17,7 +17,8 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@null"/>
+            android:src="@drawable/care_rest"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/sample_text"
