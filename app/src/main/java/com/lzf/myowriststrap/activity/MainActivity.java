@@ -271,6 +271,22 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
                         sampleText.setText(armStr);
                     }
+                } else if (myo.getPose() == Pose.FINGERS_SPREAD) {
+                    if (Math.abs(rotation.x()) > 0.479 && Math.abs(rotation.x()) < 0.493) {
+                        imageView.setImageResource(R.drawable.spread_fingers);
+                        armStr += " - 伸展"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                        sampleText.setText(armStr);
+                    } else if (Math.abs(rotation.x()) > 0.0142 && Math.abs(rotation.x()) < 0.2054) { //Math.abs(rotation.x()) > 0.108 && Math.abs(rotation.x()) < 0.2054
+                        imageView.setImageResource(R.drawable.ic_ok);
+                        armStr += " - OK"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                        sampleText.setText(armStr);
+                    }
+                } else if (myo.getPose() == Pose.WAVE_OUT) {
+                    if (Math.abs(rotation.x()) > 0.014 && Math.abs(rotation.x()) < 0.080) {
+                        imageView.setImageResource(R.drawable.ic_ok);
+                        armStr += " - OK"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                        sampleText.setText(armStr);
+                    }
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", "", ""));
                 //TODO: Do something awesome.
