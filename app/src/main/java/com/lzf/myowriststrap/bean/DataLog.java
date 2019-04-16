@@ -113,6 +113,33 @@ public class DataLog implements Serializable {
      * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
      */
     @NotNull
+    private String dataLogOrientationX;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogOrientationY;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogOrientationZ;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogOrientationW;
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
     private String dataLogAccelerometer;
 
     /**
@@ -128,10 +155,11 @@ public class DataLog implements Serializable {
     @Transient
     private static final long serialVersionUID = 7187212593875334889L;
 
-    @Generated(hash = 971965016)
+    @Generated(hash = 892932619)
     public DataLog(Long dataLogId, @NotNull String dataLogDateTime, @NotNull String dataLogContent, @NotNull String dataLogArm,
-                   @NotNull String dataLogXDirection, @NotNull String dataLogPose, @NotNull String dataLogOrientation, @NotNull String dataLogAccelerometer,
-                   @NotNull String dataLogGyroscope) {
+                   @NotNull String dataLogXDirection, @NotNull String dataLogPose, @NotNull String dataLogOrientation, @NotNull String dataLogOrientationX,
+                   @NotNull String dataLogOrientationY, @NotNull String dataLogOrientationZ, @NotNull String dataLogOrientationW,
+                   @NotNull String dataLogAccelerometer, @NotNull String dataLogGyroscope) {
         this.dataLogId = dataLogId;
         this.dataLogDateTime = dataLogDateTime;
         this.dataLogContent = dataLogContent;
@@ -139,17 +167,25 @@ public class DataLog implements Serializable {
         this.dataLogXDirection = dataLogXDirection;
         this.dataLogPose = dataLogPose;
         this.dataLogOrientation = dataLogOrientation;
+        this.dataLogOrientationX = dataLogOrientationX;
+        this.dataLogOrientationY = dataLogOrientationY;
+        this.dataLogOrientationZ = dataLogOrientationZ;
+        this.dataLogOrientationW = dataLogOrientationW;
         this.dataLogAccelerometer = dataLogAccelerometer;
         this.dataLogGyroscope = dataLogGyroscope;
     }
 
-    public DataLog(String dataLogDateTime, String dataLogContent, String dataLogArm, String dataLogXDirection, String dataLogPose, String dataLogOrientation, String dataLogAccelerometer, String dataLogGyroscope) {
+    public DataLog(String dataLogDateTime, String dataLogContent, String dataLogArm, String dataLogXDirection, String dataLogPose, String dataLogOrientation, String dataLogOrientationX, String dataLogOrientationY, String dataLogOrientationZ, String dataLogOrientationW, String dataLogAccelerometer, String dataLogGyroscope) {
         this.dataLogDateTime = dataLogDateTime;
         this.dataLogContent = dataLogContent;
         this.dataLogArm = dataLogArm;
         this.dataLogXDirection = dataLogXDirection;
         this.dataLogPose = dataLogPose;
         this.dataLogOrientation = dataLogOrientation;
+        this.dataLogOrientationX = dataLogOrientationX;
+        this.dataLogOrientationY = dataLogOrientationY;
+        this.dataLogOrientationZ = dataLogOrientationZ;
+        this.dataLogOrientationW = dataLogOrientationW;
         this.dataLogAccelerometer = dataLogAccelerometer;
         this.dataLogGyroscope = dataLogGyroscope;
     }
@@ -214,6 +250,38 @@ public class DataLog implements Serializable {
         this.dataLogOrientation = dataLogOrientation;
     }
 
+    public String getDataLogOrientationX() {
+        return this.dataLogOrientationX;
+    }
+
+    public void setDataLogOrientationX(String dataLogOrientationX) {
+        this.dataLogOrientationX = dataLogOrientationX;
+    }
+
+    public String getDataLogOrientationY() {
+        return this.dataLogOrientationY;
+    }
+
+    public void setDataLogOrientationY(String dataLogOrientationY) {
+        this.dataLogOrientationY = dataLogOrientationY;
+    }
+
+    public String getDataLogOrientationZ() {
+        return this.dataLogOrientationZ;
+    }
+
+    public void setDataLogOrientationZ(String dataLogOrientationZ) {
+        this.dataLogOrientationZ = dataLogOrientationZ;
+    }
+
+    public String getDataLogOrientationW() {
+        return this.dataLogOrientationW;
+    }
+
+    public void setDataLogOrientationW(String dataLogOrientationW) {
+        this.dataLogOrientationW = dataLogOrientationW;
+    }
+
     public String getDataLogAccelerometer() {
         return this.dataLogAccelerometer;
     }
@@ -228,20 +296,5 @@ public class DataLog implements Serializable {
 
     public void setDataLogGyroscope(String dataLogGyroscope) {
         this.dataLogGyroscope = dataLogGyroscope;
-    }
-
-    @Override
-    public String toString() {
-        return "DataLog{" +
-                "dataLogId=" + dataLogId +
-                ", dataLogDateTime='" + dataLogDateTime + '\'' +
-                ", dataLogContent='" + dataLogContent + '\'' +
-                ", dataLogArm='" + dataLogArm + '\'' +
-                ", dataLogXDirection='" + dataLogXDirection + '\'' +
-                ", dataLogPose='" + dataLogPose + '\'' +
-                ", dataLogOrientation='" + dataLogOrientation + '\'' +
-                ", dataLogAccelerometer='" + dataLogAccelerometer + '\'' +
-                ", dataLogGyroscope='" + dataLogGyroscope + '\'' +
-                '}';
     }
 }
