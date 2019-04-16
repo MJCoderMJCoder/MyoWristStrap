@@ -204,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onPose(Myo myo, long timestamp, Pose pose) {
             try {
-                imageView.setVisibility(View.VISIBLE);
                 String armStr = "MYO腕带不在手臂上";
                 if (myo.getArm() == Arm.LEFT) {
                     armStr = "MYO腕带在左手臂上";
@@ -217,14 +216,12 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 暂时无法识别；敬请期待。"; //未知
                         break;
                     case REST:
-                        imageView.setImageResource(R.drawable.care_rest);
                         armStr += " - 呵护"; //休息、轻松（relax your armStr）
                         break;
                     case DOUBLE_TAP:
                         armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
                         break;
                     case FIST:
-                        imageView.setImageResource(R.drawable.make_fist);
                         armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
                         break;
                     case WAVE_IN:
@@ -234,19 +231,11 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
                         break;
                     case FINGERS_SPREAD:
-                        imageView.setImageResource(R.drawable.spread_fingers);
                         armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
                         break;
                 }
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, myo.getArm() + "", myo.getXDirection() + "", pose + "", "", "", ""));
-                sampleText.setText(armStr);
                 //TODO: Do something awesome.
-                if (!lastPose.equals(pose + "")) {
-                    lastPose = pose + "";
-                    lastPoseTime = System.currentTimeMillis();
-                } else {
-                    lastPoseTime = System.currentTimeMillis();
-                }
             } catch (Exception e) {
                 exceptionLog("deviceListener-onPose", e.getMessage());
             }
@@ -261,33 +250,58 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     armStr = "MYO腕带在右手臂上";
                 }
-                if (myo.getPose() == Pose.FIST) {
-                    if (Math.abs(rotation.x()) > 0.1 && Math.abs(rotation.x()) < 0.19) {
-                        imageView.setImageResource(R.drawable.give_like);
-                        armStr += " - 点赞"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                        sampleText.setText(armStr);
-                    } else if (Math.abs(rotation.x()) < 0.1) {
-                        imageView.setImageResource(R.drawable.make_fist);
-                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                        sampleText.setText(armStr);
-                    }
-                } else if (myo.getPose() == Pose.FINGERS_SPREAD) {
-                    if (Math.abs(rotation.x()) > 0.479 && Math.abs(rotation.x()) < 0.493) {
-                        imageView.setImageResource(R.drawable.spread_fingers);
-                        armStr += " - 伸展"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                        sampleText.setText(armStr);
-                    } else if (Math.abs(rotation.x()) > 0.0142 && Math.abs(rotation.x()) < 0.2054) { //Math.abs(rotation.x()) > 0.108 && Math.abs(rotation.x()) < 0.2054
-                        imageView.setImageResource(R.drawable.ic_ok);
-                        armStr += " - OK"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                        sampleText.setText(armStr);
-                    }
-                } else if (myo.getPose() == Pose.WAVE_OUT) {
-                    if (Math.abs(rotation.x()) > 0.014 && Math.abs(rotation.x()) < 0.080) {
-                        imageView.setImageResource(R.drawable.ic_ok);
-                        armStr += " - OK"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                        sampleText.setText(armStr);
-                    }
+                if (myo.getPose() == Pose.UNKNOWN) {
+                    imageView.setVisibility(View.INVISIBLE);
+                } else {
+                    imageView.setVisibility(View.VISIBLE);
                 }
+                switch (myo.getPose()) {
+                    case UNKNOWN:
+                        armStr += " - 暂时无法识别；敬请期待。"; //未知
+                        sampleText.setText(armStr);
+                        break;
+                    case REST:
+                        imageView.setImageResource(R.drawable.care_rest);
+                        armStr += " - 呵护"; //休息、轻松（relax your armStr）
+                        sampleText.setText(armStr);
+                        break;
+                    case DOUBLE_TAP:
+                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
+                        break;
+                    case FIST:
+                        if (Math.abs(rotation.x()) > 0.1 && Math.abs(rotation.x()) < 0.19) {
+                            imageView.setImageResource(R.drawable.give_like);
+                            armStr += " - 点赞"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                            sampleText.setText(armStr);
+                        } else if (Math.abs(rotation.x()) < 0.1) {
+                            imageView.setImageResource(R.drawable.make_fist);
+                            armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                            sampleText.setText(armStr);
+                        }
+                        break;
+                    case WAVE_IN:
+                        break;
+                    case WAVE_OUT:
+                        if (Math.abs(rotation.x()) > 0.014 && Math.abs(rotation.x()) < 0.080) {
+                            imageView.setImageResource(R.drawable.ic_ok);
+                            armStr += " - OK"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                            sampleText.setText(armStr);
+                        }
+                        break;
+                    case FINGERS_SPREAD:
+                        if (Math.abs(rotation.x()) > 0.479 && Math.abs(rotation.x()) < 0.493) {
+                            imageView.setImageResource(R.drawable.spread_fingers);
+                            armStr += " - 伸展"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                            sampleText.setText(armStr);
+                        } else if (Math.abs(rotation.x()) > 0.0142 && Math.abs(rotation.x()) < 0.2054) { //Math.abs(rotation.x()) > 0.108 && Math.abs(rotation.x()) < 0.2054
+                            imageView.setImageResource(R.drawable.ic_ok);
+                            armStr += " - OK"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                            sampleText.setText(armStr);
+                        }
+                        break;
+                }
+                lastPose = myo.getPose() + "";
+                lastPoseTime = System.currentTimeMillis();
                 dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", "", ""));
                 //TODO: Do something awesome.
             } catch (Exception e) {
