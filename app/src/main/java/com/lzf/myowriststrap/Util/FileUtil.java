@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 /**
  * Created by MJCoder on 2019-03-14.
  */
-
 public class FileUtil {
 
     /**

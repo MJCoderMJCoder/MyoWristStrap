@@ -1,5 +1,6 @@
 package com.lzf.myowriststrap.Util;
 
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
@@ -17,13 +18,17 @@ public class CopyFileToSD {
     /**
      * 将过大的内容或是过长的字符串复制到SD卡中以便可视化查看
      *
-     * @param fileContent 过大的内容或是过长的字符串（例如：json、log、服务端返回的大数据等）
+     * @param context     环境上下文
+     * @param dirName     新建的文件所在的上级目录；可以为空（为空时该文件将直接插入项目的根目录）
      * @param fileName    复制到SD卡的文件名称（切记：需要包含后缀）
+     * @param fileContent 过大的内容或是过长的字符串（例如：json、log、服务端返回的大数据等）
+     * @return 返回已经复制到SD卡的文件对象
      */
-    public static void txtFile(String fileContent, String fileName) {
+    public static File txtFile(Context context, String dirName, String fileName, String fileContent) {
         FileOutputStream fos = null;
         RandomAccessFile randomFile = null;
         FileWriter writer = null;
+        File returnFile = null;
         try {
             //            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,如果为 true，则将字节写入文件末尾处，而不是写入文件开始处
             //            writer = new FileWriter(fileName, append);
@@ -39,7 +44,8 @@ public class CopyFileToSD {
             //                randomFile.writeBytes(fileContent);
             //            } else {
             //文件复制到sd卡中；覆盖源文件的内容。
-            fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + fileName);
+            returnFile = FileUtil.getFile(context, dirName, fileName);
+            fos = new FileOutputStream(returnFile);
             fos.write(fileContent.getBytes());  //将String字符串以字节流的形式写入到输出流中
             fos.close();
             fos.flush();
@@ -59,23 +65,29 @@ public class CopyFileToSD {
                 e.printStackTrace();
             }
         }
+        return returnFile;
     }
 
     /**
      * 将Database文件复制到SD卡中以便可视化查看
      *
+     * @param context      环境上下文
+     * @param dirName      新建的文件所在的上级目录；可以为空（为空时该文件将直接插入项目的根目录）
+     * @param databaseName Database文件的名称（切记：需要包含后缀）
      * @param packageName  该APP的包名
-     * @param databaseName Database文件的名称（切记：仅仅是名称不包含后缀）
+     * @return 返回已经复制到SD卡的文件对象
      */
-    public static void databaseFile(String packageName, String databaseName) {
+    public static File databaseFile(Context context, String dirName, String databaseName, String packageName) {
         //找到文件的路径  /data/data/包名/databases/数据库名称
-        File databaseFile = new File(Environment.getDataDirectory().getAbsolutePath() + "/data/" + packageName + "/databases/" + databaseName + ".db");
+        File databaseFile = new File(Environment.getDataDirectory().getAbsolutePath() + "/data/" + packageName + "/databases/" + databaseName);
         FileInputStream fis = null;
         FileOutputStream fos = null;
+        File returnFile = null;
         try {
             //文件复制到sd卡中
             fis = new FileInputStream(databaseFile);
-            fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + databaseName + ".db");
+            returnFile = FileUtil.getFile(context, dirName, databaseName);
+            fos = new FileOutputStream(returnFile);
             int len = 0;
             byte[] buffer = new byte[20480];
             while (-1 != (len = fis.read(buffer))) {
@@ -96,24 +108,30 @@ public class CopyFileToSD {
             }
 
         }
+        return returnFile;
     }
 
 
     /**
      * 将SharedPrefs文件复制到SD卡中以便可视化查看
      *
+     * @param context         环境上下文
+     * @param dirName         新建的文件所在的上级目录；可以为空（为空时该文件将直接插入项目的根目录）
+     * @param sharedPrefsName SharedPrefs文件的名称（切记：需要包含后缀）
      * @param packageName     该APP的包名
-     * @param sharedPrefsName SharedPrefs文件的名称（切记：仅仅是名称不包含后缀）
+     * @return 返回已经复制到SD卡的文件对象
      */
-    public static void sharedPrefsFile(String packageName, String sharedPrefsName) {
+    public static File sharedPrefsFile(Context context, String dirName, String sharedPrefsName, String packageName) {
         //找到文件的路径  /data/data/包名/databases/数据库名称
-        File sharedPrefsFile = new File(Environment.getDataDirectory().getAbsolutePath() + "/data/" + packageName + "/shared_prefs/" + sharedPrefsName + ".xml");
+        File sharedPrefsFile = new File(Environment.getDataDirectory().getAbsolutePath() + "/data/" + packageName + "/shared_prefs/" + sharedPrefsName);
         FileInputStream fis = null;
         FileOutputStream fos = null;
+        File returnFile = null;
         try {
             //文件复制到sd卡中
             fis = new FileInputStream(sharedPrefsFile);
-            fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + sharedPrefsName + ".xml");
+            returnFile = FileUtil.getFile(context, dirName, sharedPrefsName);
+            fos = new FileOutputStream(returnFile);
             int len = 0;
             byte[] buffer = new byte[20480];
             while (-1 != (len = fis.read(buffer))) {
@@ -133,5 +151,6 @@ public class CopyFileToSD {
                 e.printStackTrace();
             }
         }
+        return returnFile;
     }
 }

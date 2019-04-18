@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -506,8 +505,7 @@ public class MainActivity extends AppCompatActivity {
                     StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                     StrictMode.setVmPolicy(builder.build());
                 }
-                CopyFileToSD.databaseFile(getPackageName(), "MYO_WRIST_STRAP");
-                File shareDatabaseFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MYO_WRIST_STRAP.db");
+                File shareDatabaseFile = CopyFileToSD.databaseFile(this, "database", "MYO_WRIST_STRAP.db", getPackageName());
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("*/*");
                 intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareDatabaseFile)); //分享单张图片
