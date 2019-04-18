@@ -18,7 +18,7 @@ public class FileUtil {
      *
      * @param context  环境上下文
      * @param dirName  新建的文件所在的上级目录；可以为空（为空时该文件将直接插入项目的根目录）
-     * @param fileName 新建的文件名：可以为空（为空时返回的时目录）
+     * @param fileName 新建的文件名：可以为空（为空时返回的是目录）
      * @return
      */
     public static File getFile(Context context, String dirName, String fileName) {
@@ -27,9 +27,9 @@ public class FileUtil {
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 File dir;
                 if (dirName != null) {
-                    dir = new File(Environment.getExternalStorageDirectory(), "AttendanceSystem/" + dirName);
+                    dir = new File(Environment.getExternalStorageDirectory(), "MyoWristStrap/" + dirName);
                 } else {
-                    dir = new File(Environment.getExternalStorageDirectory(), "AttendanceSystem");
+                    dir = new File(Environment.getExternalStorageDirectory(), "MyoWristStrap");
                 }
                 if (!dir.exists()) {
                     dir.mkdirs();
@@ -63,9 +63,9 @@ public class FileUtil {
                 }
                 File dir;
                 if (dirName != null) {
-                    dir = new File(dirTemp, "AttendanceSystem/" + dirName);
+                    dir = new File(dirTemp, "MyoWristStrap/" + dirName);
                 } else {
-                    dir = new File(dirTemp, "AttendanceSystem");
+                    dir = new File(dirTemp, "MyoWristStrap");
                 }
                 if (!dir.exists()) {
                     dir.mkdirs();

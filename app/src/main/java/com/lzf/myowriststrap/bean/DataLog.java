@@ -135,6 +135,28 @@ public class DataLog implements Serializable {
      */
     @NotNull
     private String dataLogOrientationW;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogOrientationRoll;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogOrientationPitch;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogOrientationYaw;
+
     /**
      * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
      * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
@@ -147,7 +169,50 @@ public class DataLog implements Serializable {
      * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
      */
     @NotNull
+    private String dataLogAccelerometerX;
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+
+    @NotNull
+    private String dataLogAccelerometerY;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogAccelerometerZ;
+
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
     private String dataLogGyroscope;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogGyroscopeX;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogGyroscopeY;
+
+    /**
+     * 这个@NotNull注释使该属性成为数据库端的“NOT NULL”列。
+     * 通常使用@NotNull标记基本类型（long，int，short，byte）是有意义的，同时使用包装类（Long，Integer，Short，Byte）具有可空值。
+     */
+    @NotNull
+    private String dataLogGyroscopeZ;
 
     /**
      * 这个@Transient注释标记要从持久性中排除的属性。 将它们用于临时状态等。或者，您也可以使用Java中的transient关键字。
@@ -155,11 +220,9 @@ public class DataLog implements Serializable {
     @Transient
     private static final long serialVersionUID = 7187212593875334889L;
 
-    @Generated(hash = 892932619)
-    public DataLog(Long dataLogId, @NotNull String dataLogDateTime, @NotNull String dataLogContent, @NotNull String dataLogArm,
-                   @NotNull String dataLogXDirection, @NotNull String dataLogPose, @NotNull String dataLogOrientation, @NotNull String dataLogOrientationX,
-                   @NotNull String dataLogOrientationY, @NotNull String dataLogOrientationZ, @NotNull String dataLogOrientationW,
-                   @NotNull String dataLogAccelerometer, @NotNull String dataLogGyroscope) {
+    @Generated(hash = 809763633)
+    public DataLog(Long dataLogId, @NotNull String dataLogDateTime, @NotNull String dataLogContent, @NotNull String dataLogArm, @NotNull String dataLogXDirection, @NotNull String dataLogPose, @NotNull String dataLogOrientation, @NotNull String dataLogOrientationX, @NotNull String dataLogOrientationY, @NotNull String dataLogOrientationZ, @NotNull String dataLogOrientationW, @NotNull String dataLogOrientationRoll, @NotNull String dataLogOrientationPitch, @NotNull String dataLogOrientationYaw, @NotNull String dataLogAccelerometer, @NotNull String dataLogAccelerometerX,
+                   @NotNull String dataLogAccelerometerY, @NotNull String dataLogAccelerometerZ, @NotNull String dataLogGyroscope, @NotNull String dataLogGyroscopeX, @NotNull String dataLogGyroscopeY, @NotNull String dataLogGyroscopeZ) {
         this.dataLogId = dataLogId;
         this.dataLogDateTime = dataLogDateTime;
         this.dataLogContent = dataLogContent;
@@ -171,11 +234,43 @@ public class DataLog implements Serializable {
         this.dataLogOrientationY = dataLogOrientationY;
         this.dataLogOrientationZ = dataLogOrientationZ;
         this.dataLogOrientationW = dataLogOrientationW;
+        this.dataLogOrientationRoll = dataLogOrientationRoll;
+        this.dataLogOrientationPitch = dataLogOrientationPitch;
+        this.dataLogOrientationYaw = dataLogOrientationYaw;
         this.dataLogAccelerometer = dataLogAccelerometer;
+        this.dataLogAccelerometerX = dataLogAccelerometerX;
+        this.dataLogAccelerometerY = dataLogAccelerometerY;
+        this.dataLogAccelerometerZ = dataLogAccelerometerZ;
         this.dataLogGyroscope = dataLogGyroscope;
+        this.dataLogGyroscopeX = dataLogGyroscopeX;
+        this.dataLogGyroscopeY = dataLogGyroscopeY;
+        this.dataLogGyroscopeZ = dataLogGyroscopeZ;
     }
 
-    public DataLog(String dataLogDateTime, String dataLogContent, String dataLogArm, String dataLogXDirection, String dataLogPose, String dataLogOrientation, String dataLogOrientationX, String dataLogOrientationY, String dataLogOrientationZ, String dataLogOrientationW, String dataLogAccelerometer, String dataLogGyroscope) {
+    /**
+     * @param dataLogDateTime         记录的时间。
+     * @param dataLogContent          记录的文本内容。
+     * @param dataLogArm
+     * @param dataLogXDirection       记录的朝向。
+     * @param dataLogPose             记录的手势。
+     * @param dataLogOrientation      记录的四元素。
+     * @param dataLogOrientationX     记录的四元素的X分量。
+     * @param dataLogOrientationY     记录的四元素的Y分量。
+     * @param dataLogOrientationZ     记录的四元素的Z分量。
+     * @param dataLogOrientationW     记录的四元素的标量组件。
+     * @param dataLogOrientationRoll  相应四元数表示的俯仰角。
+     * @param dataLogOrientationPitch 相应四元数所表示的横摇角。
+     * @param dataLogOrientationYaw   相应四元数所表示的偏航角。
+     * @param dataLogAccelerometer    加速度计数据。
+     * @param dataLogAccelerometerX   加速度计数据的X分量。
+     * @param dataLogAccelerometerY   加速度计数据的Y分量。
+     * @param dataLogAccelerometerZ   加速度计数据的Z分量。
+     * @param dataLogGyroscope        陀螺仪数据。
+     * @param dataLogGyroscopeX       加速度计数据的X分量。
+     * @param dataLogGyroscopeY       加速度计数据的Y分量。
+     * @param dataLogGyroscopeZ       加速度计数据的Z分量。
+     */
+    public DataLog(String dataLogDateTime, String dataLogContent, String dataLogArm, String dataLogXDirection, String dataLogPose, String dataLogOrientation, String dataLogOrientationX, String dataLogOrientationY, String dataLogOrientationZ, String dataLogOrientationW, String dataLogOrientationRoll, String dataLogOrientationPitch, String dataLogOrientationYaw, String dataLogAccelerometer, String dataLogAccelerometerX, String dataLogAccelerometerY, String dataLogAccelerometerZ, String dataLogGyroscope, String dataLogGyroscopeX, String dataLogGyroscopeY, String dataLogGyroscopeZ) {
         this.dataLogDateTime = dataLogDateTime;
         this.dataLogContent = dataLogContent;
         this.dataLogArm = dataLogArm;
@@ -186,8 +281,17 @@ public class DataLog implements Serializable {
         this.dataLogOrientationY = dataLogOrientationY;
         this.dataLogOrientationZ = dataLogOrientationZ;
         this.dataLogOrientationW = dataLogOrientationW;
+        this.dataLogOrientationRoll = dataLogOrientationRoll;
+        this.dataLogOrientationPitch = dataLogOrientationPitch;
+        this.dataLogOrientationYaw = dataLogOrientationYaw;
         this.dataLogAccelerometer = dataLogAccelerometer;
+        this.dataLogAccelerometerX = dataLogAccelerometerX;
+        this.dataLogAccelerometerY = dataLogAccelerometerY;
+        this.dataLogAccelerometerZ = dataLogAccelerometerZ;
         this.dataLogGyroscope = dataLogGyroscope;
+        this.dataLogGyroscopeX = dataLogGyroscopeX;
+        this.dataLogGyroscopeY = dataLogGyroscopeY;
+        this.dataLogGyroscopeZ = dataLogGyroscopeZ;
     }
 
     @Generated(hash = 922326832)
@@ -282,6 +386,30 @@ public class DataLog implements Serializable {
         this.dataLogOrientationW = dataLogOrientationW;
     }
 
+    public String getDataLogOrientationRoll() {
+        return this.dataLogOrientationRoll;
+    }
+
+    public void setDataLogOrientationRoll(String dataLogOrientationRoll) {
+        this.dataLogOrientationRoll = dataLogOrientationRoll;
+    }
+
+    public String getDataLogOrientationPitch() {
+        return this.dataLogOrientationPitch;
+    }
+
+    public void setDataLogOrientationPitch(String dataLogOrientationPitch) {
+        this.dataLogOrientationPitch = dataLogOrientationPitch;
+    }
+
+    public String getDataLogOrientationYaw() {
+        return this.dataLogOrientationYaw;
+    }
+
+    public void setDataLogOrientationYaw(String dataLogOrientationYaw) {
+        this.dataLogOrientationYaw = dataLogOrientationYaw;
+    }
+
     public String getDataLogAccelerometer() {
         return this.dataLogAccelerometer;
     }
@@ -290,11 +418,59 @@ public class DataLog implements Serializable {
         this.dataLogAccelerometer = dataLogAccelerometer;
     }
 
+    public String getDataLogAccelerometerX() {
+        return this.dataLogAccelerometerX;
+    }
+
+    public void setDataLogAccelerometerX(String dataLogAccelerometerX) {
+        this.dataLogAccelerometerX = dataLogAccelerometerX;
+    }
+
+    public String getDataLogAccelerometerY() {
+        return this.dataLogAccelerometerY;
+    }
+
+    public void setDataLogAccelerometerY(String dataLogAccelerometerY) {
+        this.dataLogAccelerometerY = dataLogAccelerometerY;
+    }
+
+    public String getDataLogAccelerometerZ() {
+        return this.dataLogAccelerometerZ;
+    }
+
+    public void setDataLogAccelerometerZ(String dataLogAccelerometerZ) {
+        this.dataLogAccelerometerZ = dataLogAccelerometerZ;
+    }
+
     public String getDataLogGyroscope() {
         return this.dataLogGyroscope;
     }
 
     public void setDataLogGyroscope(String dataLogGyroscope) {
         this.dataLogGyroscope = dataLogGyroscope;
+    }
+
+    public String getDataLogGyroscopeX() {
+        return this.dataLogGyroscopeX;
+    }
+
+    public void setDataLogGyroscopeX(String dataLogGyroscopeX) {
+        this.dataLogGyroscopeX = dataLogGyroscopeX;
+    }
+
+    public String getDataLogGyroscopeY() {
+        return this.dataLogGyroscopeY;
+    }
+
+    public void setDataLogGyroscopeY(String dataLogGyroscopeY) {
+        this.dataLogGyroscopeY = dataLogGyroscopeY;
+    }
+
+    public String getDataLogGyroscopeZ() {
+        return this.dataLogGyroscopeZ;
+    }
+
+    public void setDataLogGyroscopeZ(String dataLogGyroscopeZ) {
+        this.dataLogGyroscopeZ = dataLogGyroscopeZ;
     }
 }
