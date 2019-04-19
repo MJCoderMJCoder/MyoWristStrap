@@ -23,9 +23,9 @@ import android.widget.Toast;
 
 import com.lzf.myowriststrap.LzfApplication;
 import com.lzf.myowriststrap.R;
-import com.lzf.myowriststrap.Util.CopyFileToSD;
-import com.lzf.myowriststrap.bean.DataLog;
+import com.lzf.myowriststrap.Util.ExcelUtil;
 import com.lzf.myowriststrap.bean.ExceptionLog;
+import com.lzf.myowriststrap.bean.Orientation;
 import com.lzf.myowriststrap.jni.MTCNN;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
@@ -61,13 +61,13 @@ public class MainActivity extends AppCompatActivity {
     //MYO的核心
     private Hub hub;
     //数据录入线程控制
-    private boolean dataEntryThreadControl = false;
-    //数据 //FIFO队列
-    private List<DataLog> dataLogList = Collections.synchronizedList(new LinkedList<DataLog>());
-    //上一个手势
-    private String lastPose = "";
-    //上一个手势的最新事件
-    private long lastPoseTime = 0L;
+    //    private boolean dataEntryThreadControl = false;
+    //Database数据 //FIFO队列
+    //    private List<DataLog> dataLogList = Collections.synchronizedList(new LinkedList<DataLog>());
+    //Excel数据 //FIFO队列
+    private List<Orientation> orientationList = Collections.synchronizedList(new LinkedList<Orientation>());
+    //休息时的（最后一个）Orientation
+    private Orientation restOrientation = null;
     /**
      * 所请求的一系列权限
      */
@@ -85,24 +85,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 数据录入线程
      */
-    private Thread dataEntryThread = new Thread() {
-        @Override
-        public void run() {
-            super.run();
-            while (dataEntryThreadControl) {
-                try {
-                    if (dataLogList != null && dataLogList.size() > 0) {
-                        DataLog dataLog = dataLogList.remove(0);
-                        LzfApplication.getDaoSession(MainActivity.this).getDataLogDao().insertWithoutSettingPk(dataLog);
-                    } else {
-                        Thread.sleep(50);
-                    }
-                } catch (Exception e) {
-                    exceptionLog("thread-run", e.getMessage());
-                }
-            }
-        }
-    };
+    //    private Thread dataEntryThread = new Thread() {
+    //        @Override
+    //        public void run() {
+    //            super.run();
+    //            while (dataEntryThreadControl) {
+    //                try {
+    //                    if (dataLogList.size() > 0) {
+    //                        DataLog dataLog = dataLogList.remove(0);
+    //                        LzfApplication.getDaoSession(MainActivity.this).getDataLogDao().insertWithoutSettingPk(dataLog);
+    //                    } else {
+    //                        Thread.sleep(50);
+    //                    }
+    //                } catch (Exception e) {
+    //                    exceptionLog("thread-run", e.getMessage());
+    //                }
+    //            }
+    //        }
+    //    };
     /**
      * 手机蓝牙广播接收器。
      */
@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     armStr = "右手臂上的";
                 }
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "正在连接" + armStr + "MYO腕带...", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "正在连接" + armStr + "MYO腕带...", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText("正在连接" + armStr + "MYO腕带...");
             } catch (Exception e) {
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 myo.vibrate(Myo.VibrationType.LONG);
                 //                Intent intent = new Intent(MainActivity.this, MainActivity.class);
                 //                startActivity(intent);
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr + "的MYO腕带已连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr + "的MYO腕带已连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(armStr + "的MYO腕带已连接");
             } catch (Exception e) {
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     armStr = "MYO腕带在右手臂上";
                 }
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, arm + "", xDirection + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, arm + "", xDirection + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(armStr);
             } catch (Exception e) {
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 暂时无法识别；敬请期待。"; //未知
                         break;
                     case REST:
-                        armStr += " - 呵护"; //休息、轻松（relax your armStr）
+                        armStr += " - 休息"; //休息、轻松（relax your armStr）
                         break;
                     case DOUBLE_TAP:
                         armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
                         break;
                 }
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, myo.getArm() + "", myo.getXDirection() + "", pose + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr, myo.getArm() + "", myo.getXDirection() + "", pose + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 //TODO: Do something awesome.
             } catch (Exception e) {
                 exceptionLog("deviceListener-onPose", e.getMessage());
@@ -243,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * select DATA_LOG_ID, DATA_LOG_DATE_TIME, DATA_LOG_CONTENT, DATA_LOG_ARM, DATA_LOG_XDIRECTION, DATA_LOG_POSE, DATA_LOG_ORIENTATION, max(DATA_LOG_ORIENTATION_X), DATA_LOG_ORIENTATION_Y, DATA_LOG_ORIENTATION_Z, DATA_LOG_ORIENTATION_W from DATA_LOG where DATA_LOG_DATE_TIME >= '2019-04-16 22:36:05 001' and DATA_LOG_DATE_TIME <= '2019-04-16 22:36:17 33' and DATA_LOG_ORIENTATION != ''
          * @param myo
          * @param timestamp
          * @param rotation
@@ -257,6 +256,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     armStr = "MYO腕带在右手臂上";
                 }
+                double roll = Quaternion.roll(rotation);
+                double pitch = Quaternion.pitch(rotation);
+                double yaw = Quaternion.yaw(rotation);
+                Orientation orientation = new Orientation(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm(), myo.getXDirection(), myo.getPose(), rotation, rotation.x(), rotation.y(), rotation.z(), rotation.w(), roll, pitch, yaw);
                 switch (myo.getPose()) {
                     case UNKNOWN:
                         imageView.setVisibility(View.INVISIBLE);
@@ -265,9 +268,10 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case REST:
                         imageView.setImageResource(R.drawable.care_rest);
-                        armStr += " - 呵护"; //休息、轻松（relax your armStr）
+                        armStr += " - 休息"; //休息、轻松（relax your armStr）
                         sampleText.setText(armStr);
                         imageView.setVisibility(View.VISIBLE);
+                        restOrientation = orientation;
                         break;
                     case DOUBLE_TAP:
                         imageView.setVisibility(View.INVISIBLE);
@@ -275,10 +279,19 @@ public class MainActivity extends AppCompatActivity {
                         sampleText.setText(armStr);
                         break;
                     case FIST:
-                        imageView.setImageResource(R.drawable.make_fist);
-                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                        sampleText.setText(armStr);
-                        imageView.setVisibility(View.VISIBLE);
+                        if (restOrientation != null) {
+                            if (roll < restOrientation.getRoll()) {
+                                imageView.setImageResource(R.drawable.give_like);
+                                armStr += " - 点赞"; //点赞
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                            } else if (roll >= restOrientation.getRoll()) {
+                                imageView.setImageResource(R.drawable.make_fist);
+                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                            }
+                        }
                         break;
                     case WAVE_IN:
                         imageView.setVisibility(View.INVISIBLE);
@@ -297,9 +310,8 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setVisibility(View.VISIBLE);
                         break;
                 }
-                lastPose = myo.getPose() + "";
-                lastPoseTime = System.currentTimeMillis();
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", rotation.x() + "", rotation.y() + "", rotation.z() + "", rotation.w() + "", Quaternion.roll(rotation) + "", Quaternion.pitch(rotation) + "", Quaternion.yaw(rotation) + "", "", "", "", "", "", "", "", ""));
+                orientationList.add(orientation);
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", rotation.x() + "", rotation.y() + "", rotation.z() + "", rotation.w() + "", roll + "", pitch + "", yaw + "", "", "", "", "", "", "", "", ""));
                 //TODO: Do something awesome.
             } catch (Exception e) {
                 exceptionLog("deviceListener-onOrientationData", e.getMessage());
@@ -309,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onAccelerometerData(Myo myo, long timestamp, Vector3 accel) {
             try {
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的加速度计数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", accel + "", accel.x() + "", accel.y() + "", accel.z() + "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的加速度计数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", accel + "", accel.x() + "", accel.y() + "", accel.z() + "", "", "", "", ""));
                 //TODO: Do something awesome.
             } catch (Exception e) {
                 exceptionLog("deviceListener-onAccelerometerData", e.getMessage());
@@ -319,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onGyroscopeData(Myo myo, long timestamp, Vector3 gyro) {
             try {
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的陀螺仪数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", gyro + "", gyro.x() + "", gyro.y() + "", gyro.z() + ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的陀螺仪数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", gyro + "", gyro.x() + "", gyro.y() + "", gyro.z() + ""));
                 //TODO: Do something awesome.
             } catch (Exception e) {
                 exceptionLog("deviceListener-onGyroscopeData", e.getMessage());
@@ -335,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     arm = "右手臂上";
                 }
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "MYO腕带正从" + arm + "移开", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "MYO腕带正从" + arm + "移开", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText("MYO腕带正从" + arm + "移开");
             } catch (Exception e) {
@@ -352,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     arm = "右手臂上";
                 }
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), arm + "的MYO腕带已断开连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), arm + "的MYO腕带已断开连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(arm + "的MYO腕带已断开连接");
                 sampleText.setTextColor(Color.BLACK);
@@ -370,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     arm = "右手臂上";
                 }
-                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), arm + "的MYO腕带信号太弱", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), arm + "的MYO腕带信号太弱", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(arm + "的MYO腕带信号太弱");
                 sampleText.setTextColor(Color.BLACK);
@@ -395,10 +407,10 @@ public class MainActivity extends AppCompatActivity {
                 //LockingPolicy.STANDARD Using this policy means Myo will be locked until the user performs the unlock pose. This is the default policy.
                 //LockingPolicy.NONE Using this policy means you will always receive pose events, regardless of Myo's unlock state.
                 hub.setLockingPolicy(Hub.LockingPolicy.NONE);
-                if (dataEntryThread != null) {
-                    dataEntryThreadControl = true;
-                    dataEntryThread.start();
-                }
+                //                if (dataEntryThread != null) {
+                //                    dataEntryThreadControl = true;
+                //                    dataEntryThread.start();
+                //                }
                 registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                 hub.addListener(deviceListener);
                 // Set the maximum number of simultaneously attached Myos to 2.
@@ -497,24 +509,30 @@ public class MainActivity extends AppCompatActivity {
                     bluetoothAdapter = null;
                 }
             }
-            if (dataLogList != null && dataLogList.size() > 0) {
-                Toast.makeText(this, "正在收集数据（还剩" + dataLogList.size() + "条），请稍后重试。", Toast.LENGTH_SHORT).show();
-            } else {
-                dataEntryThreadControl = false;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // 置入一个不设防的VmPolicy：Android 7.0 FileUriExposedException
-                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                    StrictMode.setVmPolicy(builder.build());
-                }
-                File shareDatabaseFile = CopyFileToSD.databaseFile(this, "database", "MYO_WRIST_STRAP.db", getPackageName());
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("*/*");
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareDatabaseFile)); //分享单张图片
-                intent.putExtra(Intent.EXTRA_SUBJECT, "发送给纸纷飞（598157378）");
-                intent.putExtra(Intent.EXTRA_TEXT, "发送给纸纷飞（598157378）");//设置分享的文字内容
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //每次都显示分享列表
-                startActivity(Intent.createChooser(intent, "发送给纸纷飞（598157378）")); //getTitle()设置分享列表的标题
-                finish();
+            //            if (dataLogList != null && dataLogList.size() > 0) {
+            //                Toast.makeText(this, "正在收集数据（还剩" + dataLogList.size() + "条），请稍后重试。", Toast.LENGTH_SHORT).show();
+            //            } else {
+            //                dataEntryThreadControl = false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // 置入一个不设防的VmPolicy：Android 7.0 FileUriExposedException
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
             }
+            File shareExcelFile = ExcelUtil.createExcel(this, "excel", "MYO_WRIST_STRAP.xls", orientationList);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareExcelFile)); //分享单文件
+            intent.putExtra(Intent.EXTRA_SUBJECT, "发送给纸纷飞（598157378）");
+            intent.putExtra(Intent.EXTRA_TEXT, "发送给纸纷飞（598157378）");//设置分享的文字内容
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //每次都显示分享列表
+            startActivity(Intent.createChooser(intent, "发送给纸纷飞（598157378）")); //getTitle()设置分享列表的标题
+            //                File shareDatabaseFile = CopyFileToSD.databaseFile(this, "database", "MYO_WRIST_STRAP.db", getPackageName());
+            //                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareDatabaseFile)); //分享单文件
+            //                intent.putExtra(Intent.EXTRA_SUBJECT, "发送给纸纷飞（598157378）");
+            //                intent.putExtra(Intent.EXTRA_TEXT, "发送给纸纷飞（598157378）");//设置分享的文字内容
+            //                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //每次都显示分享列表
+            //                startActivity(Intent.createChooser(intent, "发送给纸纷飞（598157378）")); //getTitle()设置分享列表的标题
+            finish();
+            //            }
         } catch (Exception e) {
             exceptionLog("onBackPressed", e.getMessage());
         }
