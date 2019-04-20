@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
     //Excel数据 //FIFO队列
     private List<Orientation> orientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //休息时的（最后一个）Orientation
-    private Orientation restOrientation = null;
+    private Orientation restMaxOrientation = null;
+    private Orientation restMinOrientation = null;
     /**
      * 所请求的一系列权限
      */
@@ -271,7 +272,10 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 休息"; //休息、轻松（relax your armStr）
                         sampleText.setText(armStr);
                         imageView.setVisibility(View.VISIBLE);
-                        restOrientation = orientation;
+                        if (LzfApplication.yMdHmsS.parse(restMinOrientation.getDateTime()).getTime() > LzfApplication.yMdHmsS.parse(restMaxOrientation.getDateTime()).getTime()) {
+                            restMinOrientation = orientation;
+                        }
+                        restMaxOrientation = orientation;
                         break;
                     case DOUBLE_TAP:
                         imageView.setVisibility(View.INVISIBLE);
@@ -279,18 +283,20 @@ public class MainActivity extends AppCompatActivity {
                         sampleText.setText(armStr);
                         break;
                     case FIST:
-                        if (restOrientation != null) {
-                            if (roll < restOrientation.getRoll()) {
+                        if (restMinOrientation != null && restMaxOrientation != null) {
+                            double restOrientationRoll = (restMinOrientation.getRoll() + restMaxOrientation.getRoll()) / 2;
+                            if (roll < restOrientationRoll) {
                                 imageView.setImageResource(R.drawable.give_like);
                                 armStr += " - 点赞"; //点赞
                                 sampleText.setText(armStr);
                                 imageView.setVisibility(View.VISIBLE);
-                            } else if (roll >= restOrientation.getRoll()) {
+                            } else if (roll >= restOrientationRoll) {
                                 imageView.setImageResource(R.drawable.make_fist);
                                 armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
                                 sampleText.setText(armStr);
                                 imageView.setVisibility(View.VISIBLE);
                             }
+                            restMinOrientation.setDateTime(LzfApplication.yMdHmsS.format(System.currentTimeMillis()));
                         }
                         break;
                     case WAVE_IN:
