@@ -324,14 +324,22 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case WAVE_IN:
-                        imageView.setVisibility(View.INVISIBLE);
-                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        imageView.setImageResource(R.drawable.wave_left);
+                        armStr += " - 向里"; //点赞
                         sampleText.setText(armStr);
+                        imageView.setVisibility(View.VISIBLE);
+                        //                            imageView.setVisibility(View.INVISIBLE);
+                        //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        //                            sampleText.setText(armStr);
                         break;
                     case WAVE_OUT:
-                        imageView.setVisibility(View.INVISIBLE);
-                        armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向外摆动：左手是向左摆动、右手是向右摆动。）
+                        imageView.setImageResource(R.drawable.wave_right);
+                        armStr += " - 向外";
                         sampleText.setText(armStr);
+                        imageView.setVisibility(View.VISIBLE);
+                        //                            imageView.setVisibility(View.INVISIBLE);
+                        //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        //                            sampleText.setText(armStr);
                         break;
                     case FINGERS_SPREAD:
                         imageView.setImageResource(R.drawable.spread_fingers);
