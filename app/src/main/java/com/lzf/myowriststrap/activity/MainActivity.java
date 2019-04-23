@@ -262,104 +262,125 @@ public class MainActivity extends AppCompatActivity {
                 double pitch = Quaternion.pitch(rotation);
                 double yaw = Quaternion.yaw(rotation);
                 Orientation orientation = new Orientation(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm(), myo.getXDirection(), myo.getPose(), rotation, rotation.x(), rotation.y(), rotation.z(), rotation.w(), roll, pitch, yaw);
-                switch (myo.getPose()) {
-                    case UNKNOWN:
-                        imageView.setVisibility(View.INVISIBLE);
-                        armStr += " - 暂时无法识别；敬请期待。"; //未知
-                        sampleText.setText(armStr);
-                        break;
-                    case DOUBLE_TAP:
-                        imageView.setVisibility(View.INVISIBLE);
-                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
-                        sampleText.setText(armStr);
-                        break;
-                    case REST:
-                        imageView.setImageResource(R.drawable.care_rest);
-                        armStr += " - 休息"; //休息、轻松（relax your armStr）
-                        sampleText.setText(armStr);
-                        imageView.setVisibility(View.VISIBLE);
-                        if (restOrientationList.size() < 100) {
-                            restOrientationList.add(orientation);
-                        } else {
-                            restOrientationList.clear();
-                            restOrientationList.add(orientation);
-                        }
-                        break;
-                    case FIST:
-                        int thumbUpRate = 0;
-                        if (restOrientationList.size() >= spreadOrientationList.size()) {
-                            for (Orientation orientationTemp : restOrientationList) {
-                                if (roll < orientationTemp.getRoll()) {
-                                    ++thumbUpRate;
-                                }
-                            }
-                            if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
-                                imageView.setImageResource(R.drawable.give_like);
-                                armStr += " - 点赞"; //点赞
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            } else {
-                                imageView.setImageResource(R.drawable.make_fist);
-                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            }
-                        } else {
-                            for (Orientation orientationTemp : spreadOrientationList) {
-                                if (roll < orientationTemp.getRoll()) {
-                                    ++thumbUpRate;
-                                }
-                            }
-                            if ((thumbUpRate / spreadOrientationList.size()) >= 0.6) {
-                                imageView.setImageResource(R.drawable.give_like);
-                                armStr += " - 点赞"; //点赞
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            } else {
-                                imageView.setImageResource(R.drawable.make_fist);
-                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        break;
-                    case WAVE_IN:
-                        imageView.setImageResource(R.drawable.wave_left);
-                        armStr += " - 向里"; //点赞
-                        sampleText.setText(armStr);
-                        imageView.setVisibility(View.VISIBLE);
-                        //                            imageView.setVisibility(View.INVISIBLE);
-                        //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
-                        //                            sampleText.setText(armStr);
-                        break;
-                    case WAVE_OUT:
-                        imageView.setImageResource(R.drawable.wave_right);
-                        armStr += " - 向外";
-                        sampleText.setText(armStr);
-                        imageView.setVisibility(View.VISIBLE);
-                        //                            imageView.setVisibility(View.INVISIBLE);
-                        //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
-                        //                            sampleText.setText(armStr);
-                        break;
-                    case FINGERS_SPREAD:
-                        if (roll > 0) {
-                            imageView.setImageResource(R.drawable.ic_ok);
-                            armStr += " - OK";
+                if (yaw > roll && pitch > yaw && myo.getPose() != Pose.FIST) {
+                    imageView.setImageResource(R.drawable.ic_love);
+                    armStr += " - 爱你"; //爱你
+                    sampleText.setText(armStr);
+                    imageView.setVisibility(View.VISIBLE);
+                } else {
+                    switch (myo.getPose()) {
+                        case UNKNOWN:
+                            imageView.setVisibility(View.INVISIBLE);
+                            armStr += " - 暂时无法识别；敬请期待。"; //未知
+                            sampleText.setText(armStr);
+                            break;
+                        case DOUBLE_TAP:
+                            imageView.setVisibility(View.INVISIBLE);
+                            armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
+                            sampleText.setText(armStr);
+                            break;
+                        case REST:
+                            imageView.setImageResource(R.drawable.care_rest);
+                            armStr += " - 休息"; //休息、轻松（relax your armStr）
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                        } else if (roll <= 0) {
+                            if (restOrientationList.size() < 100) {
+                                restOrientationList.add(orientation);
+                            } else {
+                                restOrientationList.clear();
+                                restOrientationList.add(orientation);
+                            }
+                            break;
+                        case FIST:
+                            int lovaRate = 0;
+                            int thumbUpRate = 0;
+                            if (restOrientationList.size() >= spreadOrientationList.size()) {
+                                for (Orientation orientationTemp : restOrientationList) {
+                                    if (roll < orientationTemp.getRoll()) {
+                                        ++thumbUpRate;
+                                    }
+                                    if (yaw < orientationTemp.getYaw()) {
+                                        ++lovaRate;
+                                    }
+                                }
+                                if ((lovaRate / restOrientationList.size()) >= 0.6) {
+                                    imageView.setImageResource(R.drawable.ic_love);
+                                    armStr += " - 爱你"; //爱你
+                                    sampleText.setText(armStr);
+                                    imageView.setVisibility(View.VISIBLE);
+                                } else {
+                                    if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
+                                        imageView.setImageResource(R.drawable.give_like);
+                                        armStr += " - 点赞"; //点赞
+                                        sampleText.setText(armStr);
+                                        imageView.setVisibility(View.VISIBLE);
+                                    } else {
+                                        imageView.setImageResource(R.drawable.make_fist);
+                                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                        sampleText.setText(armStr);
+                                        imageView.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            } else {
+                                for (Orientation orientationTemp : spreadOrientationList) {
+                                    if (roll < orientationTemp.getRoll()) {
+                                        ++thumbUpRate;
+                                    }
+                                    if (yaw < orientationTemp.getYaw()) {
+                                        ++lovaRate;
+                                    }
+                                }
+                                if ((lovaRate / restOrientationList.size()) >= 0.6) {
+                                    imageView.setImageResource(R.drawable.ic_love);
+                                    armStr += " - 爱你"; //爱你
+                                    sampleText.setText(armStr);
+                                    imageView.setVisibility(View.VISIBLE);
+                                } else {
+                                    if ((thumbUpRate / spreadOrientationList.size()) >= 0.6) {
+                                        imageView.setImageResource(R.drawable.give_like);
+                                        armStr += " - 点赞"; //点赞
+                                        sampleText.setText(armStr);
+                                        imageView.setVisibility(View.VISIBLE);
+                                    } else {
+                                        imageView.setImageResource(R.drawable.make_fist);
+                                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                        sampleText.setText(armStr);
+                                        imageView.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            }
+                            break;
+                        case WAVE_IN:
+                            imageView.setImageResource(R.drawable.wave_left);
+                            armStr += " - 向里"; //点赞
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                            //                            imageView.setVisibility(View.INVISIBLE);
+                            //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                            //                            sampleText.setText(armStr);
+                            break;
+                        case WAVE_OUT:
+                            imageView.setImageResource(R.drawable.wave_right);
+                            armStr += " - 向外";
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                            //                            imageView.setVisibility(View.INVISIBLE);
+                            //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                            //                            sampleText.setText(armStr);
+                            break;
+                        case FINGERS_SPREAD:
                             imageView.setImageResource(R.drawable.spread_fingers);
                             armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                        }
-                        if (spreadOrientationList.size() < 100) {
-                            spreadOrientationList.add(orientation);
-                        } else {
-                            spreadOrientationList.clear();
-                            spreadOrientationList.add(orientation);
-                        }
-                        break;
+                            if (spreadOrientationList.size() < 100) {
+                                spreadOrientationList.add(orientation);
+                            } else {
+                                spreadOrientationList.clear();
+                                spreadOrientationList.add(orientation);
+                            }
+                            break;
+                    }
                 }
                 orientationList.add(orientation);
                 //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", rotation.x() + "", rotation.y() + "", rotation.z() + "", rotation.w() + "", roll + "", pitch + "", yaw + "", "", "", "", "", "", "", "", ""));
