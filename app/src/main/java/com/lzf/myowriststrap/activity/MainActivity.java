@@ -268,6 +268,11 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 暂时无法识别；敬请期待。"; //未知
                         sampleText.setText(armStr);
                         break;
+                    case DOUBLE_TAP:
+                        imageView.setVisibility(View.INVISIBLE);
+                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
+                        sampleText.setText(armStr);
+                        break;
                     case REST:
                         imageView.setImageResource(R.drawable.care_rest);
                         armStr += " - 休息"; //休息、轻松（relax your armStr）
@@ -279,11 +284,6 @@ public class MainActivity extends AppCompatActivity {
                             restOrientationList.clear();
                             restOrientationList.add(orientation);
                         }
-                        break;
-                    case DOUBLE_TAP:
-                        imageView.setVisibility(View.INVISIBLE);
-                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
-                        sampleText.setText(armStr);
                         break;
                     case FIST:
                         int thumbUpRate = 0;
@@ -342,10 +342,17 @@ public class MainActivity extends AppCompatActivity {
                         //                            sampleText.setText(armStr);
                         break;
                     case FINGERS_SPREAD:
-                        imageView.setImageResource(R.drawable.spread_fingers);
-                        armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
-                        sampleText.setText(armStr);
-                        imageView.setVisibility(View.VISIBLE);
+                        if (roll > 0) {
+                            imageView.setImageResource(R.drawable.ic_ok);
+                            armStr += " - OK";
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                        } else if (roll <= 0) {
+                            imageView.setImageResource(R.drawable.spread_fingers);
+                            armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                        }
                         if (spreadOrientationList.size() < 100) {
                             spreadOrientationList.add(orientation);
                         } else {
