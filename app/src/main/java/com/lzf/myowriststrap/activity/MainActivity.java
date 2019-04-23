@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (roll < orientationTemp.getRoll()) {
                                         ++thumbUpRate;
                                     }
-                                    if (yaw < orientationTemp.getYaw()) {
+                                    if (orientationTemp.getYaw() - yaw >= 0.1) {
                                         ++lovaRate;
                                     }
                                 }
@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (roll < orientationTemp.getRoll()) {
                                         ++thumbUpRate;
                                     }
-                                    if (yaw < orientationTemp.getYaw()) {
+                                    if (orientationTemp.getYaw() - yaw >= 0.1) {
                                         ++lovaRate;
                                     }
                                 }
