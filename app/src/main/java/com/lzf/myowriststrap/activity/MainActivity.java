@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if ((victoryRate / restOrientationList.size()) >= 0.6) {
                             imageView.setImageResource(R.drawable.ic_victory);
-                            armStr += " - 胜利"; //
+                            armStr += " - 胜利"; //胜利
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
                         } else {
