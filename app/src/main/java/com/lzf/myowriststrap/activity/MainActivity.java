@@ -60,16 +60,10 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     //MYO的核心
     private Hub hub;
-    //数据录入线程控制
-    //    private boolean dataEntryThreadControl = false;
-    //Database数据 //FIFO队列
-    //    private List<DataLog> dataLogList = Collections.synchronizedList(new LinkedList<DataLog>());
     //Excel数据 //FIFO队列
     private List<Orientation> orientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //休息时的Orientation队列
     private List<Orientation> restOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
-    //伸展时的Orientation队列
-    private List<Orientation> spreadOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     /**
      * 所请求的一系列权限
      */
@@ -84,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
     };
+    //数据录入线程控制
+    //    private boolean dataEntryThreadControl = false;
+    //Database数据 //FIFO队列
+    //    private List<DataLog> dataLogList = Collections.synchronizedList(new LinkedList<DataLog>());
     /**
      * 数据录入线程
      */
@@ -117,11 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                     switch (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0)) {
                         case BluetoothAdapter.STATE_ON:
-                            //                                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-                            //                                startActivity(intent);
-                            // Use this instead to connect with a Myo that is very near (ie. almost touching) the device
-                            // Finally, scan for Myo devices and connect to the first one found that is very near.
-                            //                        hub.attachToAdjacentMyo();
                             hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
                             sampleText.setText("正在尝试连接...");
                             break;
@@ -177,8 +170,6 @@ public class MainActivity extends AppCompatActivity {
                     armStr = "右手臂上";
                 }
                 myo.vibrate(Myo.VibrationType.LONG);
-                //                Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                //                startActivity(intent);
                 //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), armStr + "的MYO腕带已连接", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
                 imageView.setVisibility(View.INVISIBLE);
                 sampleText.setText(armStr + "的MYO腕带已连接");
@@ -213,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
                 } else if (myo.getArm() == Arm.RIGHT) {
                     armStr = "MYO腕带在右手臂上";
                 }
-                // Handle the cases of the Pose enumeration, and change the text of the text view based on the pose we receive.
                 switch (pose) {
                     case UNKNOWN:
                         armStr += " - 暂时无法识别；敬请期待。"; //未知
@@ -262,126 +252,90 @@ public class MainActivity extends AppCompatActivity {
                 double pitch = Quaternion.pitch(rotation);
                 double yaw = Quaternion.yaw(rotation);
                 Orientation orientation = new Orientation(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm(), myo.getXDirection(), myo.getPose(), rotation, rotation.x(), rotation.y(), rotation.z(), rotation.w(), roll, pitch, yaw);
-                if (yaw > roll && pitch > yaw && myo.getPose() != Pose.FIST) {
-                    imageView.setImageResource(R.drawable.ic_love);
-                    armStr += " - 爱你"; //爱你
-                    sampleText.setText(armStr);
-                    imageView.setVisibility(View.VISIBLE);
-                } else {
-                    switch (myo.getPose()) {
-                        case UNKNOWN:
-                            imageView.setVisibility(View.INVISIBLE);
-                            armStr += " - 暂时无法识别；敬请期待。"; //未知
-                            sampleText.setText(armStr);
-                            break;
-                        case DOUBLE_TAP:
-                            imageView.setVisibility(View.INVISIBLE);
-                            armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
-                            sampleText.setText(armStr);
-                            break;
-                        case REST:
-                            imageView.setImageResource(R.drawable.care_rest);
-                            armStr += " - 休息"; //休息、轻松（relax your armStr）
-                            sampleText.setText(armStr);
-                            imageView.setVisibility(View.VISIBLE);
-                            if (restOrientationList.size() < 100) {
-                                restOrientationList.add(orientation);
-                            } else {
-                                restOrientationList.clear();
-                                restOrientationList.add(orientation);
-                            }
-                            break;
-                        case FIST:
-                            int lovaRate = 0;
-                            int thumbUpRate = 0;
-                            if (restOrientationList.size() >= spreadOrientationList.size()) {
-                                for (Orientation orientationTemp : restOrientationList) {
-                                    if (roll < orientationTemp.getRoll()) {
-                                        ++thumbUpRate;
-                                    }
-                                    if (orientationTemp.getYaw() - yaw >= 0.1) {
-                                        ++lovaRate;
-                                    }
-                                }
-                                if ((lovaRate / restOrientationList.size()) >= 0.6) {
-                                    imageView.setImageResource(R.drawable.ic_love);
-                                    armStr += " - 爱你"; //爱你
-                                    sampleText.setText(armStr);
-                                    imageView.setVisibility(View.VISIBLE);
+                int thumbUpRate = 0;
+                int victoryRate = 0;
+                switch (myo.getPose()) {
+                    case UNKNOWN:
+                        imageView.setVisibility(View.INVISIBLE);
+                        armStr += " - 暂时无法识别；敬请期待。"; //未知
+                        sampleText.setText(armStr);
+                        break;
+                    case DOUBLE_TAP:
+                        imageView.setVisibility(View.INVISIBLE);
+                        armStr += " - 暂时无法识别；敬请期待。"; //双发快射、双击。大拇指和中指相互连续碰两下。
+                        sampleText.setText(armStr);
+                        break;
+                    case REST:
+                        imageView.setImageResource(R.drawable.care_rest);
+                        armStr += " - 休息"; //休息、轻松（relax your armStr）
+                        sampleText.setText(armStr);
+                        imageView.setVisibility(View.VISIBLE);
+                        if (restOrientationList.size() < 200) {
+                            restOrientationList.add(orientation);
+                        } else {
+                            restOrientationList.clear();
+                            restOrientationList.add(orientation);
+                        }
+                        break;
+                    case FIST:
+                        for (Orientation orientationTemp : restOrientationList) {
+                            if (roll < orientationTemp.getRoll()) {
+                                if (pitch - orientationTemp.getPitch() > 0.6) {
+                                    ++victoryRate;
                                 } else {
-                                    if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
-                                        imageView.setImageResource(R.drawable.give_like);
-                                        armStr += " - 点赞"; //点赞
-                                        sampleText.setText(armStr);
-                                        imageView.setVisibility(View.VISIBLE);
-                                    } else {
-                                        imageView.setImageResource(R.drawable.make_fist);
-                                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                        sampleText.setText(armStr);
-                                        imageView.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            } else {
-                                for (Orientation orientationTemp : spreadOrientationList) {
-                                    if (roll < orientationTemp.getRoll()) {
-                                        ++thumbUpRate;
-                                    }
-                                    if (orientationTemp.getYaw() - yaw >= 0.1) {
-                                        ++lovaRate;
-                                    }
-                                }
-                                if ((lovaRate / restOrientationList.size()) >= 0.6) {
-                                    imageView.setImageResource(R.drawable.ic_love);
-                                    armStr += " - 爱你"; //爱你
-                                    sampleText.setText(armStr);
-                                    imageView.setVisibility(View.VISIBLE);
-                                } else {
-                                    if ((thumbUpRate / spreadOrientationList.size()) >= 0.6) {
-                                        imageView.setImageResource(R.drawable.give_like);
-                                        armStr += " - 点赞"; //点赞
-                                        sampleText.setText(armStr);
-                                        imageView.setVisibility(View.VISIBLE);
-                                    } else {
-                                        imageView.setImageResource(R.drawable.make_fist);
-                                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                        sampleText.setText(armStr);
-                                        imageView.setVisibility(View.VISIBLE);
-                                    }
+                                    ++thumbUpRate;
                                 }
                             }
-                            break;
-                        case WAVE_IN:
-                            imageView.setImageResource(R.drawable.wave_left);
-                            armStr += " - 向里"; //点赞
+                        }
+                        if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
+                            imageView.setImageResource(R.drawable.give_like);
+                            armStr += " - 点赞"; //点赞
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                            //                            imageView.setVisibility(View.INVISIBLE);
-                            //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
-                            //                            sampleText.setText(armStr);
-                            break;
-                        case WAVE_OUT:
-                            imageView.setImageResource(R.drawable.wave_right);
-                            armStr += " - 向外";
+                        } else if ((victoryRate / restOrientationList.size()) >= 0.6) {
+                            imageView.setImageResource(R.drawable.ic_victory);
+                            armStr += " - 胜利"; //胜利
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                            //                            imageView.setVisibility(View.INVISIBLE);
-                            //                            armStr += " - 暂时无法识别；敬请期待。"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
-                            //                            sampleText.setText(armStr);
-                            break;
-                        case FINGERS_SPREAD:
+                        } else {
+                            imageView.setImageResource(R.drawable.make_fist);
+                            armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                        }
+                        break;
+                    case WAVE_IN:
+                        imageView.setImageResource(R.drawable.wave_left);
+                        armStr += " - 向里"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        sampleText.setText(armStr);
+                        imageView.setVisibility(View.VISIBLE);
+                        break;
+                    case WAVE_OUT:
+                        imageView.setImageResource(R.drawable.wave_right);
+                        armStr += " - 向外"; //挥手、摆动、招手（向里摆动：左手是向右摆动、右手是向左摆动。）
+                        sampleText.setText(armStr);
+                        imageView.setVisibility(View.VISIBLE);
+                        break;
+                    case FINGERS_SPREAD:
+                        for (Orientation orientationTemp : restOrientationList) {
+                            if (pitch - orientationTemp.getPitch() > 0.45) {
+                                ++victoryRate;
+                            }
+                        }
+                        if ((victoryRate / restOrientationList.size()) >= 0.6) {
+                            imageView.setImageResource(R.drawable.ic_victory);
+                            armStr += " - 胜利"; //
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                        } else {
                             imageView.setImageResource(R.drawable.spread_fingers);
                             armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                            if (spreadOrientationList.size() < 100) {
-                                spreadOrientationList.add(orientation);
-                            } else {
-                                spreadOrientationList.clear();
-                                spreadOrientationList.add(orientation);
-                            }
-                            break;
-                    }
+                        }
+                        break;
                 }
+                //                }
                 orientationList.add(orientation);
                 //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", rotation.x() + "", rotation.y() + "", rotation.z() + "", rotation.w() + "", roll + "", pitch + "", yaw + "", "", "", "", "", "", "", "", ""));
                 //TODO: Do something awesome.
@@ -485,9 +439,6 @@ public class MainActivity extends AppCompatActivity {
                 //                }
                 registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                 hub.addListener(deviceListener);
-                // Set the maximum number of simultaneously attached Myos to 2.
-                //            hub.setMyoAttachAllowance(2);
-                // Example of a call to a native method
                 sampleText = findViewById(R.id.sample_text);
                 imageView = findViewById(R.id.image_view);
                 sampleText.setText(new MTCNN().stringFromJNI());
@@ -501,11 +452,6 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 sampleText.setTextColor(Color.GRAY);
                                 if (bluetoothAdapter.isEnabled()) {
-                                    //                                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-                                    //                                startActivity(intent);
-                                    // Use this instead to connect with a Myo that is very near (ie. almost touching) the device
-                                    // Finally, scan for Myo devices and connect to the first one found that is very near.
-                                    //                                    hub.attachToAdjacentMyo();
                                     hub.attachByMacAddress("EC:F2:AE:2D:F3:8D");
                                     sampleText.setText("正在尝试连接...");
                                 } else {
