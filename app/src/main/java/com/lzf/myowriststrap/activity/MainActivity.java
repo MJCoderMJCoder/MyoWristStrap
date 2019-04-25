@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Orientation> orientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //休息时的Orientation队列
     private List<Orientation> restOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
+    private double fingersSpreadFirstRoll = 598157378;
     /**
      * 所请求的一系列权限
      */
@@ -270,12 +271,13 @@ public class MainActivity extends AppCompatActivity {
                         armStr += " - 休息"; //休息、轻松（relax your armStr）
                         sampleText.setText(armStr);
                         imageView.setVisibility(View.VISIBLE);
-                        if (restOrientationList.size() < 200) {
+                        if (restOrientationList.size() < 100) {
                             restOrientationList.add(orientation);
                         } else {
                             restOrientationList.clear();
                             restOrientationList.add(orientation);
                         }
+                        fingersSpreadFirstRoll = 598157378;
                         break;
                     case FIST:
                         for (Orientation orientationTemp : restOrientationList) {
@@ -317,21 +319,20 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setVisibility(View.VISIBLE);
                         break;
                     case FINGERS_SPREAD:
-                        for (Orientation orientationTemp : restOrientationList) {
-                            if (pitch - orientationTemp.getPitch() > 0.45) {
-                                ++victoryRate;
-                            }
-                        }
-                        if ((victoryRate / restOrientationList.size()) >= 0.6) {
-                            imageView.setImageResource(R.drawable.ic_victory);
-                            armStr += " - 胜利"; //胜利
-                            sampleText.setText(armStr);
-                            imageView.setVisibility(View.VISIBLE);
+                        if (fingersSpreadFirstRoll == 598157378) {
+                            fingersSpreadFirstRoll = roll;
                         } else {
-                            imageView.setImageResource(R.drawable.spread_fingers);
-                            armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
-                            sampleText.setText(armStr);
-                            imageView.setVisibility(View.VISIBLE);
+                            if (fingersSpreadFirstRoll - roll > 0.05) {
+                                imageView.setImageResource(R.drawable.spread_fingers);
+                                armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                            } else {
+                                imageView.setImageResource(R.drawable.ic_victory);
+                                armStr += " - 胜利"; //胜利
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                            }
                         }
                         break;
                 }
