@@ -282,11 +282,11 @@ public class MainActivity extends AppCompatActivity {
                     case FIST:
                         for (Orientation orientationTemp : restOrientationList) {
                             if (roll < orientationTemp.getRoll()) {
-                                if (pitch - orientationTemp.getPitch() > 0.6) {
-                                    ++victoryRate;
-                                } else {
-                                    ++thumbUpRate;
-                                }
+                                //                                if (pitch - orientationTemp.getPitch() > 0.6) {
+                                //                                    ++victoryRate;
+                                //                                } else {
+                                ++thumbUpRate;
+                                //                                }
                             }
                         }
                         if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
@@ -294,12 +294,12 @@ public class MainActivity extends AppCompatActivity {
                             armStr += " - 点赞"; //点赞
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                        } else if ((victoryRate / restOrientationList.size()) >= 0.6) {
+                        } /*else if ((victoryRate / restOrientationList.size()) >= 0.6) {
                             imageView.setImageResource(R.drawable.ic_victory);
                             armStr += " - 胜利"; //胜利
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                        } else {
+                        } */ else {
                             imageView.setImageResource(R.drawable.make_fist);
                             armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
                             sampleText.setText(armStr);
