@@ -64,7 +64,10 @@ public class MainActivity extends AppCompatActivity {
     private List<Orientation> orientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //休息时的Orientation队列
     private List<Orientation> restOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
-    private double fingersSpreadFirstRoll = 598157378;
+    //最后一个握拳手势出现的时间戳
+    private long fistTimeStamp = 0L;
+    //最后一个伸展手势出现的时间戳
+    private long fingersSpreadTimeStamp = 0L;
     /**
      * 所请求的一系列权限
      */
@@ -277,31 +280,39 @@ public class MainActivity extends AppCompatActivity {
                             restOrientationList.clear();
                             restOrientationList.add(orientation);
                         }
-                        fingersSpreadFirstRoll = 598157378;
                         break;
                     case FIST:
-                        for (Orientation orientationTemp : restOrientationList) {
-                            if (roll < orientationTemp.getRoll()) {
-                                //                                if (pitch - orientationTemp.getPitch() > 0.6) {
-                                //                                    ++victoryRate;
-                                //                                } else {
-                                ++thumbUpRate;
-                                //                                }
+                        fistTimeStamp = System.currentTimeMillis();
+                        if (fistTimeStamp - fingersSpreadTimeStamp > 800) {
+                            for (Orientation orientationTemp : restOrientationList) {
+                                if (roll < orientationTemp.getRoll()) {
+                                    //                                if (pitch - orientationTemp.getPitch() > 0.6) {
+                                    //                                    ++victoryRate;
+                                    //                                } else {
+                                    ++thumbUpRate;
+                                    //                                }
+                                }
                             }
-                        }
-                        if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
-                            imageView.setImageResource(R.drawable.give_like);
-                            armStr += " - 点赞"; //点赞
-                            sampleText.setText(armStr);
-                            imageView.setVisibility(View.VISIBLE);
-                        } /*else if ((victoryRate / restOrientationList.size()) >= 0.6) {
+                            if ((thumbUpRate / restOrientationList.size()) >= 0.6) {
+                                imageView.setImageResource(R.drawable.give_like);
+                                armStr += " - 点赞"; //点赞
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                            } /*else if ((victoryRate / restOrientationList.size()) >= 0.6) {
                             imageView.setImageResource(R.drawable.ic_victory);
                             armStr += " - 胜利"; //胜利
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
                         } */ else {
-                            imageView.setImageResource(R.drawable.make_fist);
-                            armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                imageView.setImageResource(R.drawable.make_fist);
+                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            fingersSpreadTimeStamp = System.currentTimeMillis();
+                            imageView.setImageResource(R.drawable.ic_victory);
+                            armStr += " - 胜利"; //胜利
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
                         }
@@ -319,20 +330,18 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setVisibility(View.VISIBLE);
                         break;
                     case FINGERS_SPREAD:
-                        if (fingersSpreadFirstRoll == 598157378) {
-                            fingersSpreadFirstRoll = roll;
+                        fingersSpreadTimeStamp = System.currentTimeMillis();
+                        if (fingersSpreadTimeStamp - fistTimeStamp > 800) {
+                            imageView.setImageResource(R.drawable.spread_fingers);
+                            armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
                         } else {
-                            if (fingersSpreadFirstRoll - roll > 0.05) {
-                                imageView.setImageResource(R.drawable.spread_fingers);
-                                armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            } else {
-                                imageView.setImageResource(R.drawable.ic_victory);
-                                armStr += " - 胜利"; //胜利
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            }
+                            fistTimeStamp = System.currentTimeMillis();
+                            imageView.setImageResource(R.drawable.ic_victory);
+                            armStr += " - 胜利"; //胜利
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
                         }
                         break;
                 }
@@ -340,7 +349,10 @@ public class MainActivity extends AppCompatActivity {
                 orientationList.add(orientation);
                 //                dataLogList.add(new DataLog(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm() + "", myo.getXDirection() + "", myo.getPose() + "", rotation + "", rotation.x() + "", rotation.y() + "", rotation.z() + "", rotation.w() + "", roll + "", pitch + "", yaw + "", "", "", "", "", "", "", "", ""));
                 //TODO: Do something awesome.
-            } catch (Exception e) {
+            } catch (
+                    Exception e)
+
+            {
                 exceptionLog("deviceListener-onOrientationData", e.getMessage());
             }
         }
