@@ -262,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
                 Orientation orientation = new Orientation(yMdHmsS.format(System.currentTimeMillis()), "当MYO提供新的方向数据时调用", myo.getArm(), myo.getXDirection(), myo.getPose(), rotation, rotation.x(), rotation.y(), rotation.z(), rotation.w(), roll, pitch, yaw);
                 int thumbUpRate = 0;
                 int victoryRate = 0;
+                int loveRate = 0;
                 switch (myo.getPose()) {
                     case UNKNOWN:
                         imageView.setVisibility(View.INVISIBLE);
@@ -303,10 +304,15 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             for (Orientation orientationTemp : restOrientationList) {
                                 if (roll < orientationTemp.getRoll()) {
-                                    if (pitch > 0) {
-                                        ++thumbUpRate;
+                                    //                                    if (pitch > 0) {
+                                    //                                    ++thumbUpRate;
+                                    //                                    } else {
+                                    //                                        ++victoryRate;
+                                    //                                    }
+                                    if (roll < -0.55) {
+                                        ++loveRate;
                                     } else {
-                                        ++victoryRate;
+                                        ++thumbUpRate;
                                     }
                                 }
                             }
@@ -316,6 +322,11 @@ public class MainActivity extends AppCompatActivity {
                                 sampleText.setText(armStr);
                                 imageView.setVisibility(View.VISIBLE);
                                 likeOrientation = orientation;
+                            } else if ((loveRate / restOrientationList.size()) >= 0.6) {
+                                imageView.setImageResource(R.drawable.ic_love);
+                                armStr += " - 爱你"; //非常6+1
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
                             } else if ((victoryRate / restOrientationList.size()) >= 0.6) {
                                 imageView.setImageResource(R.drawable.ic_victory);
                                 armStr += " - 胜利"; //胜利
@@ -343,28 +354,44 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setVisibility(View.VISIBLE);
                         break;
                     case FINGERS_SPREAD:
-                        if (fingersSpreadFirstOrientation == null) {
-                            fingersSpreadFirstOrientation = orientation;
+                        //                        if (fingersSpreadFirstOrientation == null) {
+                        //                            fingersSpreadFirstOrientation = orientation;
+                        //                        }
+                        //                        if (fingersSpreadOrientationList.size() <= 30) {
+                        //                            fingersSpreadOrientationList.add(orientation);
+                        //                        } else {
+                        //                            for (Orientation temp : fingersSpreadOrientationList) {
+                        //                                if (fingersSpreadFirstOrientation.getYaw() > temp.getYaw()) {
+                        //                                    ++victoryRate;
+                        //                                }
+                        //                            }
+                        //                            if (victoryRate / fingersSpreadOrientationList.size() >= 0.6) {
+                        //                                imageView.setImageResource(R.drawable.ic_victory);
+                        //                                armStr += " - 胜利"; //胜利
+                        //                                sampleText.setText(armStr);
+                        //                                imageView.setVisibility(View.VISIBLE);
+                        //                            } else {
+                        //                        imageView.setImageResource(R.drawable.spread_fingers);
+                        //                        armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
+                        //                        sampleText.setText(armStr);
+                        //                        imageView.setVisibility(View.VISIBLE);
+                        //                            }
+                        //                        }
+                        for (Orientation orientationTemp : restOrientationList) {
+                            if (yaw > orientationTemp.getYaw()) {
+                                ++loveRate;
+                            }
                         }
-                        if (fingersSpreadOrientationList.size() <= 30) {
-                            fingersSpreadOrientationList.add(orientation);
+                        if ((loveRate / restOrientationList.size()) >= 0.6) {
+                            imageView.setImageResource(R.drawable.ic_love);
+                            armStr += " - 爱你"; //非常6+1
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
                         } else {
-                            for (Orientation temp : fingersSpreadOrientationList) {
-                                if (fingersSpreadFirstOrientation.getYaw() > temp.getYaw()) {
-                                    ++victoryRate;
-                                }
-                            }
-                            if (victoryRate / fingersSpreadOrientationList.size() >= 0.6) {
-                                imageView.setImageResource(R.drawable.ic_victory);
-                                armStr += " - 胜利"; //胜利
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            } else {
-                                imageView.setImageResource(R.drawable.spread_fingers);
-                                armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            }
+                            imageView.setImageResource(R.drawable.spread_fingers);
+                            armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
                         }
                         break;
                 }
