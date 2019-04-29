@@ -65,9 +65,11 @@ public class MainActivity extends AppCompatActivity {
     //休息时的Orientation队列
     private List<Orientation> restOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //握拳时的最后一个Orientation
-    private Orientation fistOrientation = null;
+    private Orientation fistLastOrientation = null;
+    //握拳时的第一个Orientation
+    private Orientation fistFirstOrientation = null;
     //点赞时的最后一个Orientation
-    private Orientation likeOrientation = null;
+    private Orientation likeLastOrientation = null;
     //伸展时的Orientation队列
     private List<Orientation> fingersSpreadOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //第一个伸展时的Orientation
@@ -243,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
+         * MYO官方提供：休息、双击、握拳、伸展、向里、向外。
+         * 纸纷飞提供：点赞、菜鸟、手枪、爱你、胜利、极客、666。
          * @param myo
          * @param timestamp
          * @param rotation
@@ -264,6 +268,8 @@ public class MainActivity extends AppCompatActivity {
                 int victoryRate = 0;
                 int loveRate = 0;
                 int gunRate = 0;
+                int geekRate = 0;
+                int sixRate = 0;
                 switch (myo.getPose()) {
                     case UNKNOWN:
                         imageView.setVisibility(View.INVISIBLE);
@@ -287,17 +293,18 @@ public class MainActivity extends AppCompatActivity {
                             restOrientationList.clear();
                             restOrientationList.add(orientation);
                         }
-                        fistOrientation = null;
-                        likeOrientation = null;
+                        fistLastOrientation = null;
+                        likeLastOrientation = null;
+                        fistFirstOrientation = null;
                         break;
                     case FIST:
-                        if (fistOrientation != null && fistOrientation.getRoll() - orientation.getRoll() > 0.1) {
+                        if (fistLastOrientation != null && fistLastOrientation.getRoll() - orientation.getRoll() > 0.1) {
                             imageView.setImageResource(R.drawable.give_like);
                             armStr += " - 点赞"; //点赞
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                            likeOrientation = orientation;
-                        } else if (likeOrientation != null && orientation.getRoll() - likeOrientation.getRoll() > 0.1) {
+                            likeLastOrientation = orientation;
+                        } else if (likeLastOrientation != null && orientation.getRoll() - likeLastOrientation.getRoll() > 0.1) {
                             //                            if (orientation.getRoll() - likeOrientation.getRoll() < 0.6) {
                             //                                imageView.setImageResource(R.drawable.make_fist);
                             //                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
@@ -309,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
                             armStr += " - 菜鸟"; //弱鸡
                             sampleText.setText(armStr);
                             imageView.setVisibility(View.VISIBLE);
-                            fistOrientation = orientation;
+                            fistLastOrientation = orientation;
                             //                            }
                         } else {
                             for (Orientation orientationTemp : restOrientationList) {
@@ -330,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
                                 armStr += " - 点赞"; //点赞
                                 sampleText.setText(armStr);
                                 imageView.setVisibility(View.VISIBLE);
-                                likeOrientation = orientation;
+                                likeLastOrientation = orientation;
                             } else if ((gunRate / restOrientationList.size()) >= 0.6) {
                                 imageView.setImageResource(R.drawable.ic_gun);
                                 armStr += " - 手枪"; //非常6+1
@@ -347,11 +354,23 @@ public class MainActivity extends AppCompatActivity {
                                 sampleText.setText(armStr);
                                 imageView.setVisibility(View.VISIBLE);
                             }*/ else {
-                                imageView.setImageResource(R.drawable.make_fist);
-                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                                fistOrientation = orientation;
+                                if (fistFirstOrientation == null) {
+                                    fistFirstOrientation = orientation;
+                                } else {
+                                    if (pitch < fistFirstOrientation.getPitch()) {
+                                        imageView.setImageResource(R.drawable.ic_six);
+                                        armStr += " - 溜六溜"; //极客
+                                        sampleText.setText(armStr);
+                                        imageView.setVisibility(View.VISIBLE);
+                                    } else {
+                                        imageView.setImageResource(R.drawable.make_fist);
+                                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                        sampleText.setText(armStr);
+                                        imageView.setVisibility(View.VISIBLE);
+                                        fistLastOrientation = orientation;
+                                    }
+
+                                }
                             }
                         }
                         break;
@@ -389,14 +408,30 @@ public class MainActivity extends AppCompatActivity {
                                     if (yaw > orientationTemp.getYaw()) {
                                         ++loveRate;
                                     }
+                                    if (roll > orientationTemp.getRoll()) {
+                                        if (pitch >= roll) {
+                                            ++geekRate;
+                                        } else {
+                                            ++sixRate;
+                                        }
+                                    }
                                 }
                                 if ((loveRate / restOrientationList.size()) >= 0.6) {
                                     imageView.setImageResource(R.drawable.ic_love);
                                     armStr += " - 爱你"; //非常6+1
                                     sampleText.setText(armStr);
                                     imageView.setVisibility(View.VISIBLE);
+                                } else if ((geekRate / restOrientationList.size()) >= 0.6) {
+                                    imageView.setImageResource(R.drawable.ic_geek);
+                                    armStr += " - 极客"; //极客
+                                    sampleText.setText(armStr);
+                                    imageView.setVisibility(View.VISIBLE);
+                                } else if ((sixRate / restOrientationList.size()) >= 0.6) {
+                                    imageView.setImageResource(R.drawable.ic_six);
+                                    armStr += " - 溜六溜"; //极客
+                                    sampleText.setText(armStr);
+                                    imageView.setVisibility(View.VISIBLE);
                                 } else {
-                                    imageView.setImageResource(R.drawable.spread_fingers);
                                     armStr += " - 伸展"; //（五个都）手指伸展开（手掌展开）
                                     sampleText.setText(armStr);
                                     imageView.setVisibility(View.VISIBLE);
