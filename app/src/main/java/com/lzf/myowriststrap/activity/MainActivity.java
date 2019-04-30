@@ -265,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
                 int thumbUpRate = 0;
                 int geekRate = 0;
                 int sixRate = 0;
-                int fingerHeartRate = 0;
                 int noRate = 0;
                 switch (myo.getPose()) {
                     case UNKNOWN:
@@ -290,37 +289,10 @@ public class MainActivity extends AppCompatActivity {
                             restFirstOrientation = orientation;
                         } else {
                             restOrientationList.add(orientation);
-                            for (int i = 0; i < restOrientationList.size(); i++) {
-                                if (restOrientationList.get(i).getPitch() < restOrientationList.get(++i).getPitch()) {
-                                    if (fingerHeartRate == -1) {
-                                        fingerHeartRate = 2;
-                                    } else if (fingerHeartRate == -2) {
-                                        fingerHeartRate = 3;
-                                    } else if (fingerHeartRate == 0) {
-                                        fingerHeartRate = 1;
-                                    }
-                                }
-                                if (restOrientationList.get(i).getRoll() > restOrientationList.get(++i).getRoll()) {
-                                    if (fingerHeartRate == 1) {
-                                        fingerHeartRate = -2;
-                                    } else if (fingerHeartRate == 2) {
-                                        fingerHeartRate = 3;
-                                    } else if (fingerHeartRate == 0) {
-                                        fingerHeartRate = -1;
-                                    }
-                                }
-                            }
-                            if (fingerHeartRate == 3) {
-                                imageView.setImageResource(R.drawable.ic_finger_heart);
-                                armStr += " - ♡❤♡"; //比心
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            } else {
-                                imageView.setImageResource(R.drawable.care_rest);
-                                armStr += " - 休息"; //休息、轻松（relax your armStr）
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            }
+                            imageView.setImageResource(R.drawable.care_rest);
+                            armStr += " - 休息"; //休息、轻松（relax your armStr）
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
                         }
                         break;
                     case FIST:
