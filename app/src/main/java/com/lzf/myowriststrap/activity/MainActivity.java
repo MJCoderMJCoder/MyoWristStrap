@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
         /**
          * MYO官方提供：休息、双击、握拳、伸展、向里、向外。
-         * 纸纷飞提供：点赞、菜鸟、手枪、爱你、胜利、极客、666。
+         * 纸纷飞提供：点赞、菜鸟、手枪、爱你、胜利、极客、666、NO。
          * @param myo
          * @param timestamp
          * @param rotation
@@ -270,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
                 int gunRate = 0;
                 int geekRate = 0;
                 int sixRate = 0;
+                double rollMin = 0;
                 switch (myo.getPose()) {
                     case UNKNOWN:
                         imageView.setVisibility(View.INVISIBLE);
@@ -363,11 +364,20 @@ public class MainActivity extends AppCompatActivity {
                                         sampleText.setText(armStr);
                                         imageView.setVisibility(View.VISIBLE);
                                     } else {
-                                        imageView.setImageResource(R.drawable.make_fist);
-                                        armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                        sampleText.setText(armStr);
-                                        imageView.setVisibility(View.VISIBLE);
-                                        fistLastOrientation = orientation;
+                                        rollMin = Math.min(rollMin, orientation.getRoll());
+                                        if (orientation.getRoll() - rollMin >= 0.03) {
+                                            imageView.setImageResource(R.drawable.ic_no);
+                                            armStr += " - NO"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                            sampleText.setText(armStr);
+                                            imageView.setVisibility(View.VISIBLE);
+                                            fistLastOrientation = orientation;
+                                        } else {
+                                            imageView.setImageResource(R.drawable.make_fist);
+                                            armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                            sampleText.setText(armStr);
+                                            imageView.setVisibility(View.VISIBLE);
+                                            fistLastOrientation = orientation;
+                                        }
                                     }
 
                                 }
