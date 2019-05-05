@@ -376,15 +376,10 @@ public class MainActivity extends AppCompatActivity {
                                 likeLastOrientation = orientation;
                             } else if ((gunRate / restOrientationList.size()) >= 0.6) {
                                 imageView.setImageResource(R.drawable.ic_gun);
-                                armStr += " - 手枪"; //非常6+1
+                                armStr += " - 手枪";
                                 sampleText.setText(armStr);
                                 imageView.setVisibility(View.VISIBLE);
-                            } else if ((loveRate / restOrientationList.size()) >= 0.6) {
-                                imageView.setImageResource(R.drawable.ic_love);
-                                armStr += " - 爱你"; //非常6+1
-                                sampleText.setText(armStr);
-                                imageView.setVisibility(View.VISIBLE);
-                            } /*else if ((victoryRate / restOrientationList.size()) >= 0.6) {
+                            }/*else if ((victoryRate / restOrientationList.size()) >= 0.6) {
                                 imageView.setImageResource(R.drawable.ic_victory);
                                 armStr += " - 胜利"; //胜利
                                 sampleText.setText(armStr);

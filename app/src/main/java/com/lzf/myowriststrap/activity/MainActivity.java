@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
         /**
          * MYO官方提供：休息、双击、握拳、伸展、向里、向外。
-         * 纸纷飞提供：点赞、菜鸟、666、极客、比心、NO。手枪、爱你、胜利
+         * 纸纷飞提供：点赞、菜鸟、666、极客、爱你。手枪、胜利、比心、NO
          * @param myo
          * @param timestamp
          * @param rotation
@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 int geekRate = 0;
                 int sixRate = 0;
                 int noRate = 0;
+                int loveRate = 0;
                 switch (myo.getPose()) {
                     case UNKNOWN:
                         restFirstOrientation = null;
@@ -372,6 +373,9 @@ public class MainActivity extends AppCompatActivity {
                     case FINGERS_SPREAD:
                         restFirstOrientation = null;
                         for (Orientation orientationTemp : restOrientationList) {
+                            if (yaw > orientationTemp.getYaw()) {
+                                ++loveRate;
+                            }
                             if (roll > orientationTemp.getRoll()) {
                                 if (pitch >= roll) {
                                     ++geekRate;
@@ -380,7 +384,13 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                        if ((geekRate / restOrientationList.size()) >= 0.6) {
+
+                        if ((loveRate / restOrientationList.size()) >= 0.6) {
+                            imageView.setImageResource(R.drawable.ic_love);
+                            armStr += " - 爱你"; //非常6+1
+                            sampleText.setText(armStr);
+                            imageView.setVisibility(View.VISIBLE);
+                        } else if ((geekRate / restOrientationList.size()) >= 0.6) {
                             imageView.setImageResource(R.drawable.ic_geek);
                             armStr += " - 极客"; //极客的困难手势
                             sampleText.setText(armStr);
