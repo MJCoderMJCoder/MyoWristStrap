@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
     private List<Orientation> orientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //休息时的Orientation队列
     private List<Orientation> restOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
-    //握拳时的Orientation队列
-    private List<Orientation> fistOrientationList = Collections.synchronizedList(new LinkedList<Orientation>());
     //握拳时的最后一个Orientation
     private Orientation fistLastOrientation = null;
     //休息时的第一个Orientation
@@ -244,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
 
         /**
          * MYO官方提供：休息、双击、握拳、伸展、向里、向外。
-         * 纸纷飞提供：点赞、菜鸟、666、极客、爱你。手枪、胜利、比心、NO
+         * 纸纷飞提供：点赞、菜鸟、666、极客。手枪、胜利、比心、NO、爱你
          * @param myo
          * @param timestamp
          * @param rotation
@@ -266,7 +264,6 @@ public class MainActivity extends AppCompatActivity {
                 int geekRate = 0;
                 int sixRate = 0;
                 int noRate = 0;
-                int loveRate = 0;
                 switch (myo.getPose()) {
                     case UNKNOWN:
                         restFirstOrientation = null;
@@ -284,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
                     case REST:
                         fistLastOrientation = null;
                         likeLastOrientation = null;
-                        fistOrientationList.clear();
                         if (restFirstOrientation == null) {
                             restOrientationList.clear();
                             restFirstOrientation = orientation;
@@ -320,39 +316,11 @@ public class MainActivity extends AppCompatActivity {
                                 imageView.setVisibility(View.VISIBLE);
                                 likeLastOrientation = orientation;
                             } else {
-                                fistOrientationList.add(orientation);
-                                for (int i = 0; i < fistOrientationList.size(); i++) {
-                                    if (fistOrientationList.get(i).getRoll() < fistOrientationList.get(++i).getRoll()) {
-                                        if (noRate == -1) {
-                                            noRate = 2;
-                                        } else if (noRate == -2) {
-                                            noRate = 3;
-                                        } else if (noRate == 0) {
-                                            noRate = 1;
-                                        }
-                                    }
-                                    if (fistOrientationList.get(i).getRoll() > fistOrientationList.get(++i).getRoll()) {
-                                        if (noRate == 1) {
-                                            noRate = -2;
-                                        } else if (noRate == 2) {
-                                            noRate = 3;
-                                        } else if (noRate == 0) {
-                                            noRate = -1;
-                                        }
-                                    }
-                                }
-                                if (noRate == 3) {
-                                    imageView.setImageResource(R.drawable.ic_no);
-                                    armStr += " - NO"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                    sampleText.setText(armStr);
-                                    imageView.setVisibility(View.VISIBLE);
-                                } else {
-                                    imageView.setImageResource(R.drawable.make_fist);
-                                    armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
-                                    sampleText.setText(armStr);
-                                    imageView.setVisibility(View.VISIBLE);
-                                    fistLastOrientation = orientation;
-                                }
+                                imageView.setImageResource(R.drawable.make_fist);
+                                armStr += " - 握拳"; //紧握；握成拳头；握拳；（把手指）捏成拳头
+                                sampleText.setText(armStr);
+                                imageView.setVisibility(View.VISIBLE);
+                                fistLastOrientation = orientation;
                             }
                         }
                         break;
@@ -373,9 +341,6 @@ public class MainActivity extends AppCompatActivity {
                     case FINGERS_SPREAD:
                         restFirstOrientation = null;
                         for (Orientation orientationTemp : restOrientationList) {
-                            if (yaw > orientationTemp.getYaw()) {
-                                ++loveRate;
-                            }
                             if (roll > orientationTemp.getRoll()) {
                                 if (pitch >= roll) {
                                     ++geekRate;
@@ -384,13 +349,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
-
-                        if ((loveRate / restOrientationList.size()) >= 0.6) {
-                            imageView.setImageResource(R.drawable.ic_love);
-                            armStr += " - 爱你"; //非常6+1
-                            sampleText.setText(armStr);
-                            imageView.setVisibility(View.VISIBLE);
-                        } else if ((geekRate / restOrientationList.size()) >= 0.6) {
+                        if ((geekRate / restOrientationList.size()) >= 0.6) {
                             imageView.setImageResource(R.drawable.ic_geek);
                             armStr += " - 极客"; //极客的困难手势
                             sampleText.setText(armStr);
